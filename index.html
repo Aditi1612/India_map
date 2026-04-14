@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India State Explorer</title>
+  <meta
+    name="description"
+    content="Interactive India state explorer. Click any state or union territory on the map to view capital, language, highlights, and quick facts."
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-backdrop" aria-hidden="true"></div>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Interactive Atlas</p>
+      <h1>Click the India map and explore every state.</h1>
+      <p class="hero-text">
+        This page gives you a fast, visual way to browse all 28 states and 8 union territories.
+        Select any region on the map to see its capital, languages, highlights, neighbours, and a
+        quick summary.
+      </p>
+
+      <div class="hero-stats">
+        <article class="stat-card">
+          <span class="stat-number" id="stats-total">36</span>
+          <span class="stat-label">Total regions</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-number" id="stats-states">28</span>
+          <span class="stat-label">States</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-number" id="stats-uts">8</span>
+          <span class="stat-label">Union territories</span>
+        </article>
+      </div>
+    </div>
+
+    <div class="hero-note">
+      <p class="note-title">How it works</p>
+      <p>
+        Click the real India political map, or use the search and the directory below. The map is
+        color-filled and the actual state shapes are clickable, closer to the style you showed.
+      </p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="toolbar-card">
+      <div>
+        <p class="eyebrow">Find A Region</p>
+        <h2>Search by state, union territory, capital, or code</h2>
+      </div>
+      <label class="search-wrap" for="state-search">
+        <span class="sr-only">Search state or union territory</span>
+        <input
+          id="state-search"
+          type="search"
+          placeholder="Try Kerala, Delhi, Jaipur, MH..."
+          autocomplete="off"
+        >
+      </label>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="explorer-grid">
+      <article class="map-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Map View</p>
+            <h2>Interactive India Map</h2>
+          </div>
+          <p class="section-copy">Hover or tap to highlight a region. Click to load its full profile.</p>
+        </div>
+
+        <div class="map-stage">
+          <object
+            id="india-map-object"
+            class="india-map-object"
+            type="image/svg+xml"
+            data="india-location-map.svg"
+            aria-label="Colorful clickable political map of India"
+          >
+            Interactive India map
+          </object>
+        </div>
+      </article>
+
+      <aside class="detail-card" id="detail-card" aria-live="polite">
+        <div class="section-head detail-head">
+          <div>
+            <p class="eyebrow">Region Profile</p>
+            <h2 id="detail-name">India State Explorer</h2>
+          </div>
+          <span class="detail-region-badge" id="detail-type">Choose a region</span>
+        </div>
+
+        <p class="detail-overview" id="detail-overview">
+          Select a state or union territory from the map to load its full details here.
+        </p>
+
+        <div class="facts-grid" id="facts-grid"></div>
+
+        <section class="detail-section">
+          <h3>Highlights</h3>
+          <div class="chip-row" id="detail-highlights"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Neighbourhood</h3>
+          <p id="detail-neighbors">The neighbouring regions and waters will appear here.</p>
+        </section>
+
+        <section class="detail-section">
+          <h3>Directory</h3>
+          <div class="state-directory" id="state-directory"></div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
