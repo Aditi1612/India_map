@@ -885,21 +885,21 @@ const heroPhrases = [
 ];
 
 const discoveryCategories = [
-  { id: "geography", label: "Geography & States", kicker: "Discover India" },
-  { id: "culture", label: "Languages, Art & Culture", kicker: "Living Culture" },
-  { id: "food", label: "Food & Cuisine", kicker: "Flavours" },
-  { id: "heritage", label: "Heritage & Tourism", kicker: "Travel Lens" },
-  { id: "climate", label: "Climate & Lifestyle", kicker: "Everyday Rhythms" },
-  { id: "attire", label: "Jewelry & Attire", kicker: "Style Archive" },
-  { id: "festivals", label: "Festivals", kicker: "Celebration Calendar" },
-  { id: "crafts", label: "Handicrafts & Textiles", kicker: "Craft Atlas" },
-  { id: "education", label: "Education Institutes", kicker: "Campus Trail" },
-  { id: "innovation", label: "Innovation & Technology", kicker: "Future India" },
-  { id: "industries", label: "Major Industries", kicker: "Economic Pulse" },
-  { id: "agri", label: "Agri Products", kicker: "Fields & Orchards" },
-  { id: "gi", label: "GI & Signature Products", kicker: "Tagged Treasures" },
-  { id: "film", label: "Film Industry", kicker: "Screen Stories" },
-  { id: "virtual", label: "Virtual Experience", kicker: "Interactive Journey" },
+  { id: "geography", label: "Geography & States", kicker: "Discover India", icon: "🗺️" },
+  { id: "culture", label: "Languages, Art & Culture", kicker: "Living Culture", icon: "🎭" },
+  { id: "food", label: "Food & Cuisine", kicker: "Flavours", icon: "🍛" },
+  { id: "heritage", label: "Heritage & Tourism", kicker: "Travel Lens", icon: "🏛️" },
+  { id: "climate", label: "Climate & Lifestyle", kicker: "Everyday Rhythms", icon: "🌦️" },
+  { id: "attire", label: "Jewelry & Attire", kicker: "Style Archive", icon: "👘" },
+  { id: "festivals", label: "Festivals", kicker: "Celebration Calendar", icon: "🪔" },
+  { id: "crafts", label: "Handicrafts & Textiles", kicker: "Craft Atlas", icon: "🧵" },
+  { id: "education", label: "Education Institutes", kicker: "Campus Trail", icon: "🎓" },
+  { id: "innovation", label: "Innovation & Technology", kicker: "Future India", icon: "🚀" },
+  { id: "industries", label: "Major Industries", kicker: "Economic Pulse", icon: "🏭" },
+  { id: "agri", label: "Agri Products", kicker: "Fields & Orchards", icon: "🌾" },
+  { id: "gi", label: "GI & Famous Products", kicker: "Tagged Treasures", icon: "🏷️" },
+  { id: "film", label: "Film Industry", kicker: "Screen Stories", icon: "🎬" },
+  { id: "virtual", label: "Virtual Experience", kicker: "Interactive Journey", icon: "🔮" },
 ];
 
 const regionalDiscoveryDefaults = {
@@ -1046,6 +1046,602 @@ const stateSignatureMap = {
   mizoram: { food: ["Bai", "Smoked pork", "Sticky rice"], festival: "Chapchar Kut and community music culture", gi: ["Puan textiles", "Bamboo craft"], cinema: "Mizoram's hills and choir-rich culture suit intimate documentary storytelling." },
   tripura: { food: ["Mui borok", "Wahan mosdeng", "Rice cakes"], festival: "Kharchi Puja and palace-linked festivities", gi: ["Rignai weaving", "Bamboo craft"], cinema: "Tripura contributes palace, lake and borderland settings to visual stories." },
   meghalaya: { food: ["Jadoh", "Dohneiiong", "Tungrymbai"], festival: "Wangala and music-season celebrations", gi: ["Eri silk", "Cane craft"], cinema: "Cloud forests and root bridges make Meghalaya instantly cinematic." },
+};
+
+/* ─────────────────────────────────────────────────────────────
+   GI Products Map  — type: craft | food | textile | art | agri
+   ───────────────────────────────────────────────────────────── */
+const giProductsMap = {
+  "jammu-kashmir": [
+    { name: "Kashmir Saffron", type: "agri" },
+    { name: "Pashmina (Cashmere)", type: "textile" },
+    { name: "Kani Shawl", type: "textile" },
+    { name: "Kashmiri Sozni Embroidery", type: "craft" },
+    { name: "Kashmir Paper Mâché", type: "craft" },
+    { name: "Kashmiri Walnut Wood Carving", type: "craft" },
+    { name: "Kashmir Carpet", type: "craft" },
+  ],
+  ladakh: [
+    { name: "Changthangi Pashmina (Ladakhi Pashm)", type: "textile" },
+    { name: "Ladakhi Apricot Products", type: "agri" },
+    { name: "Seabuckthorn (Leh Berry)", type: "agri" },
+    { name: "Ladakhi Handloom", type: "textile" },
+  ],
+  "himachal-pradesh": [
+    { name: "Kullu Shawl", type: "textile" },
+    { name: "Kangra Tea", type: "agri" },
+    { name: "Chamba Rumal (Embroidery)", type: "craft" },
+    { name: "Kangra Paintings", type: "art" },
+    { name: "Kinnauri Shawl", type: "textile" },
+    { name: "Himachal Apple", type: "agri" },
+  ],
+  punjab: [
+    { name: "Phulkari", type: "craft" },
+    { name: "Basmati Rice", type: "agri" },
+    { name: "Punjabi Jutti (Mojari)", type: "craft" },
+    { name: "Amritsar Wari Dal", type: "food" },
+    { name: "Ludhiana Hosiery", type: "textile" },
+  ],
+  chandigarh: [
+    { name: "Chandigarh Phulkari Retail Circuit", type: "craft" },
+    { name: "Rock Garden Mosaic Craft", type: "art" },
+  ],
+  haryana: [
+    { name: "Basmati Rice (Haryana belt)", type: "agri" },
+    { name: "Phulkari (shared heritage)", type: "craft" },
+    { name: "Panipat Blanket & Shoddy", type: "textile" },
+    { name: "Faridabad Handloom", type: "textile" },
+  ],
+  delhi: [
+    { name: "Delhi Zardozi Embroidery", type: "craft" },
+    { name: "Delhi Sarkanda Grass Craft", type: "craft" },
+    { name: "Delhi Silver Filigree", type: "craft" },
+    { name: "Old Delhi Heritage Foods", type: "food" },
+  ],
+  uttarakhand: [
+    { name: "Pahadi Rajma (Kidney Bean)", type: "agri" },
+    { name: "Ringal Bamboo Craft", type: "craft" },
+    { name: "Uttarakhand Timber & Woodcraft", type: "craft" },
+    { name: "Chyura Butter Oil", type: "agri" },
+    { name: "Aipan Folk Art", type: "art" },
+    { name: "Tehri Madua (Finger Millet)", type: "agri" },
+  ],
+  "uttar-pradesh": [
+    { name: "Banarasi Silk Saree", type: "textile" },
+    { name: "Lucknow Chikankari", type: "craft" },
+    { name: "Agra Petha", type: "food" },
+    { name: "Bhadohi Carpet", type: "craft" },
+    { name: "Varanasi Glass Beadwork", type: "craft" },
+    { name: "Mathura Peda", type: "food" },
+    { name: "Moradabad Brassware", type: "craft" },
+    { name: "Saharanpur Wood Carving", type: "craft" },
+    { name: "Lucknow Zardozi", type: "craft" },
+    { name: "Allahabad Surkha Guava", type: "agri" },
+    { name: "Meerut Sports Goods", type: "craft" },
+  ],
+  rajasthan: [
+    { name: "Blue Pottery of Jaipur", type: "craft" },
+    { name: "Kota Doria Fabric", type: "textile" },
+    { name: "Jodhpur Mojari", type: "craft" },
+    { name: "Sanganer Hand Block Print", type: "craft" },
+    { name: "Bikaner Bhuujia", type: "food" },
+    { name: "Rajasthani Lacquerware", type: "craft" },
+    { name: "Jaisalmer Stone Carving", type: "craft" },
+    { name: "Mathania Red Chilli", type: "agri" },
+    { name: "Jodhpuri Bandhani", type: "textile" },
+    { name: "Barmer Applique", type: "craft" },
+  ],
+  gujarat: [
+    { name: "Patola (Double Ikat) Fabric", type: "textile" },
+    { name: "Bandhani Fabric", type: "textile" },
+    { name: "Gir Kesar Mango", type: "agri" },
+    { name: "Kutch Embroidery", type: "craft" },
+    { name: "Surat Zari Craft", type: "craft" },
+    { name: "Wagad Paintings", type: "art" },
+    { name: "Ahmedabad Printed Cotton", type: "textile" },
+    { name: "Gujarat Saffron (Jamnagar)", type: "agri" },
+    { name: "Rogan Art", type: "art" },
+  ],
+  "dnh-dd": [
+    { name: "Diu Heritage Crafts", type: "craft" },
+    { name: "Tribal Warli-influenced Souvenirs", type: "art" },
+    { name: "Coconut Shell Craft (coastal)", type: "craft" },
+  ],
+  "madhya-pradesh": [
+    { name: "Maheshwari Saree", type: "textile" },
+    { name: "Chanderi Fabric", type: "textile" },
+    { name: "Bagh Hand Block Print", type: "craft" },
+    { name: "Gond Paintings", type: "art" },
+    { name: "Tikamgarh Stone Carving", type: "craft" },
+    { name: "Betul Sesame", type: "agri" },
+    { name: "Rewa White Tiger Heritage Craft", type: "art" },
+  ],
+  chhattisgarh: [
+    { name: "Kosa Silk (Tussar)", type: "textile" },
+    { name: "Dhokra Bell Metal Craft", type: "craft" },
+    { name: "Bastar Iron Craft", type: "craft" },
+    { name: "Kondagaon Terracotta", type: "craft" },
+    { name: "Bastar Tribal Painting", type: "art" },
+    { name: "Chhattisgarhi Aromatic Rice", type: "agri" },
+  ],
+  bihar: [
+    { name: "Madhubani / Mithila Painting", type: "art" },
+    { name: "Bhagalpuri Silk (Tussar)", type: "textile" },
+    { name: "Sujni Embroidery", type: "craft" },
+    { name: "Shahi Lychee (Muzaffarpur)", type: "agri" },
+    { name: "Katarni Rice", type: "agri" },
+    { name: "Bihar Sikki Grass Craft", type: "craft" },
+  ],
+  jharkhand: [
+    { name: "Tasar Silk", type: "textile" },
+    { name: "Sohrai–Khovar Painting", type: "art" },
+    { name: "Dhokra Craft", type: "craft" },
+    { name: "Paitkar Scroll Painting", type: "art" },
+    { name: "Jharkhand Lac Bangle", type: "craft" },
+  ],
+  sikkim: [
+    { name: "Large Cardamom (Elaichi)", type: "agri" },
+    { name: "Sikkim Organic Tea", type: "agri" },
+    { name: "Sikkim Handloom Weaving", type: "textile" },
+    { name: "Singtam Orange", type: "agri" },
+  ],
+  "west-bengal": [
+    { name: "Darjeeling Tea", type: "agri" },
+    { name: "Baluchari Saree", type: "textile" },
+    { name: "Shantiniketan Leather Goods", type: "craft" },
+    { name: "Kantha Stitch Embroidery", type: "craft" },
+    { name: "Bishnupur Terracotta", type: "craft" },
+    { name: "Dhaniakhali Saree", type: "textile" },
+    { name: "Kolkata Rosogolla", type: "food" },
+    { name: "Fazli Mango (Murshidabad)", type: "agri" },
+  ],
+  odisha: [
+    { name: "Sambalpuri Ikat Saree", type: "textile" },
+    { name: "Pattachitra Scroll Painting", type: "art" },
+    { name: "Cuttack Silver Filigree", type: "craft" },
+    { name: "Pipili Applique", type: "craft" },
+    { name: "Koraput Kalajeera Rice", type: "agri" },
+    { name: "Odisha Rasagola", type: "food" },
+    { name: "Dhokra Craft of Odisha", type: "craft" },
+  ],
+  maharashtra: [
+    { name: "Paithani Silk Saree", type: "textile" },
+    { name: "Kolhapuri Chappal", type: "craft" },
+    { name: "Alphonso Mango (Hapus)", type: "agri" },
+    { name: "Nagpur Orange", type: "agri" },
+    { name: "Aurangabad Himroo Textile", type: "textile" },
+    { name: "Solapur Terry Towel", type: "craft" },
+    { name: "Warli Tribal Painting", type: "art" },
+    { name: "Mahabaleshwar Strawberry", type: "agri" },
+    { name: "Nashik Table Grapes", type: "agri" },
+    { name: "Kolhapuri Jaggery (Gul)", type: "food" },
+  ],
+  goa: [
+    { name: "Goa Feni (Cashew & Coconut)", type: "food" },
+    { name: "Kunbi Saree", type: "textile" },
+    { name: "Goan Bebinca (Sweet)", type: "food" },
+    { name: "Goa Cashew Products", type: "agri" },
+    { name: "Aldona Jackfruit Harvest", type: "agri" },
+  ],
+  telangana: [
+    { name: "Pochampally Ikat Fabric", type: "textile" },
+    { name: "Nirmal Toys & Lacquerware", type: "craft" },
+    { name: "Hyderabadi Haleem", type: "food" },
+    { name: "Gadwal Saree", type: "textile" },
+    { name: "Karimnagar Silver Filigree", type: "craft" },
+    { name: "Warangal Durrie", type: "craft" },
+    { name: "Bidriware (Bidar)", type: "craft" },
+  ],
+  "andhra-pradesh": [
+    { name: "Kalamkari (Srikalahasti)", type: "art" },
+    { name: "Kondapalli Toys", type: "craft" },
+    { name: "Tirupati Laddu (GI certified)", type: "food" },
+    { name: "Bandar Laddu", type: "food" },
+    { name: "Uppada Jamdani Saree", type: "textile" },
+    { name: "Dharmavaram Silk Saree", type: "textile" },
+    { name: "Etikoppaka Lacquer Toys", type: "craft" },
+    { name: "Guntur Sannam Chilli", type: "agri" },
+    { name: "Nellore Brown Shrimp", type: "agri" },
+  ],
+  karnataka: [
+    { name: "Mysore Silk Saree", type: "textile" },
+    { name: "Bidriware", type: "craft" },
+    { name: "Ilkal Saree", type: "textile" },
+    { name: "Coorg Cardamom", type: "agri" },
+    { name: "Dharwad Pedha", type: "food" },
+    { name: "Coorg Coffee", type: "agri" },
+    { name: "Udupi Mallige Jasmine", type: "agri" },
+    { name: "Bangalore Rose Onion", type: "agri" },
+    { name: "Kasuti Embroidery (Karnataka)", type: "craft" },
+    { name: "Channapatna Toys (Lacquerware)", type: "craft" },
+  ],
+  kerala: [
+    { name: "Aranmula Kannadi (Metal Mirror)", type: "craft" },
+    { name: "Kasavu Saree", type: "textile" },
+    { name: "Malabar Pepper", type: "agri" },
+    { name: "Alleppey Coir Products", type: "craft" },
+    { name: "Vazhakulam Pineapple", type: "agri" },
+    { name: "Wayanad Jeerakasala Rice", type: "agri" },
+    { name: "Palakkad Matta Rice", type: "agri" },
+    { name: "Kannur Handloom", type: "textile" },
+    { name: "Screw Pine (Kora Grass) Craft", type: "craft" },
+    { name: "Thrissur Gold Ornament Craft", type: "craft" },
+  ],
+  "tamil-nadu": [
+    { name: "Kanchipuram Silk Saree", type: "textile" },
+    { name: "Madurai Sungudi Saree", type: "textile" },
+    { name: "Thanjavur Painting (Gold Foil)", type: "art" },
+    { name: "Palani Panchamirtham", type: "food" },
+    { name: "Coimbatore Wet Grinder", type: "craft" },
+    { name: "Erode Turmeric", type: "agri" },
+    { name: "Nilgiris Tea", type: "agri" },
+    { name: "Dindigul Lock", type: "craft" },
+    { name: "Thanjavur Doll", type: "craft" },
+    { name: "Chettinad Masala", type: "food" },
+    { name: "Salem Sago (Sabudana)", type: "agri" },
+  ],
+  puducherry: [
+    { name: "Auroville Craft Products", type: "craft" },
+    { name: "Puducherry Pottery", type: "craft" },
+    { name: "Pondy Heritage Handloom", type: "textile" },
+  ],
+  lakshadweep: [
+    { name: "Alleppey-style Coir Products", type: "craft" },
+    { name: "Coconut Shell Craft", type: "craft" },
+    { name: "Marine Shell Craft", type: "craft" },
+  ],
+  "andaman-nicobar": [
+    { name: "Shell Craft", type: "craft" },
+    { name: "Nicobari Handicrafts", type: "craft" },
+    { name: "Padauk Wood Craft", type: "craft" },
+    { name: "Cane & Bamboo Basket Weaving", type: "craft" },
+  ],
+  assam: [
+    { name: "Assam CTC & Orthodox Tea", type: "agri" },
+    { name: "Muga Silk (Golden Silk)", type: "textile" },
+    { name: "Joha Rice (Scented)", type: "agri" },
+    { name: "Pat Silk of Assam", type: "textile" },
+    { name: "Tezpur Litchi", type: "agri" },
+    { name: "Assam Bamboo & Cane Craft", type: "craft" },
+    { name: "Eri Silk", type: "textile" },
+  ],
+  "arunachal-pradesh": [
+    { name: "Yak Wool Products", type: "textile" },
+    { name: "Monpa Weaving", type: "textile" },
+    { name: "Apatani Tribal Textile", type: "textile" },
+    { name: "Bamboo & Cane Craft (Arunachal)", type: "craft" },
+    { name: "Adi Gallong Weaving", type: "textile" },
+  ],
+  nagaland: [
+    { name: "Naga Shawl", type: "textile" },
+    { name: "Naga Bead Craft", type: "craft" },
+    { name: "Hornbill Festival Tribal Craft", type: "craft" },
+    { name: "Naga Smoked Pork (Traditional)", type: "food" },
+    { name: "Naga King Chilli (Bhut Jolokia)", type: "agri" },
+  ],
+  manipur: [
+    { name: "Manipuri Phanek Weaving", type: "textile" },
+    { name: "Black Pottery (Longpi)", type: "craft" },
+    { name: "Chakhao (Black Rice)", type: "agri" },
+    { name: "Shaphee Lanphee Weaving", type: "textile" },
+    { name: "Kang Chak (Reed Mat)", type: "craft" },
+  ],
+  mizoram: [
+    { name: "Puan Textile", type: "textile" },
+    { name: "Bamboo Craft Products", type: "craft" },
+    { name: "Mizo Puanchei Weaving", type: "textile" },
+    { name: "Thangchhuah (Cane Furniture)", type: "craft" },
+  ],
+  tripura: [
+    { name: "Rignai Weaving", type: "textile" },
+    { name: "Bamboo Craft", type: "craft" },
+    { name: "Tripuri Cane Furniture", type: "craft" },
+    { name: "Tripura Queen Pineapple", type: "agri" },
+    { name: "Munga Silk (Tripura)", type: "textile" },
+  ],
+  meghalaya: [
+    { name: "Eri Silk (Meghalaya)", type: "textile" },
+    { name: "Cane & Bamboo Craft", type: "craft" },
+    { name: "Shillong Plaid Textile", type: "textile" },
+    { name: "Lakadong Turmeric", type: "agri" },
+    { name: "Meghalaya Ginger", type: "agri" },
+    { name: "Khasi & Jaintia Pineapple", type: "agri" },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Education Map  — top institutes per state / UT
+   ───────────────────────────────────────────────────────────── */
+const educationMap = {
+  "jammu-kashmir": [
+    { name: "University of Kashmir", type: "Central University" },
+    { name: "NIT Srinagar", type: "National Institute of Technology" },
+    { name: "IIM Jammu", type: "IIM — Management" },
+    { name: "IUST Awantipora", type: "Islamic University of Science & Technology" },
+  ],
+  ladakh: [
+    { name: "Central University of Ladakh", type: "Central University" },
+    { name: "Eliezer Joldan Memorial College", type: "Degree College" },
+  ],
+  "himachal-pradesh": [
+    { name: "IIT Mandi", type: "IIT — Technology" },
+    { name: "NIT Hamirpur", type: "National Institute of Technology" },
+    { name: "HP University Shimla", type: "State University (est. 1970)" },
+    { name: "Jaypee University of IT", type: "Deemed University" },
+  ],
+  punjab: [
+    { name: "IIT Ropar", type: "IIT — Technology" },
+    { name: "Punjab University (Chandigarh)", type: "State Central University" },
+    { name: "Thapar Institute of Engineering", type: "Deemed University" },
+    { name: "PEC University of Technology", type: "Deemed University" },
+  ],
+  chandigarh: [
+    { name: "Punjab University", type: "Central University" },
+    { name: "PGIMER", type: "Premier Medical Research Institute" },
+    { name: "Chandigarh University", type: "Private University" },
+  ],
+  haryana: [
+    { name: "NIT Kurukshetra", type: "National Institute of Technology" },
+    { name: "Kurukshetra University", type: "State University" },
+    { name: "MDU Rohtak", type: "State University" },
+    { name: "Ashoka University, Sonipat", type: "Liberal Arts University" },
+  ],
+  delhi: [
+    { name: "IIT Delhi", type: "IIT — Technology (QS top 200 globally)" },
+    { name: "AIIMS New Delhi", type: "Premier Medical Institute" },
+    { name: "JNU (Jawaharlal Nehru University)", type: "Central University" },
+    { name: "Delhi University", type: "Central University (90+ colleges)" },
+    { name: "IIIT Delhi", type: "Institute of Information Technology" },
+  ],
+  uttarakhand: [
+    { name: "IIT Roorkee", type: "IIT — Technology (India's oldest, est. 1847)" },
+    { name: "HNB Garhwal University", type: "Central University" },
+    { name: "UPES Dehradun", type: "Energy & Technology University" },
+    { name: "Graphic Era University", type: "Deemed University" },
+  ],
+  "uttar-pradesh": [
+    { name: "IIT Kanpur", type: "IIT — Technology (research excellence)" },
+    { name: "IIT BHU Varanasi", type: "IIT — Technology" },
+    { name: "IIM Lucknow", type: "IIM — Management" },
+    { name: "BHU (Banaras Hindu University)", type: "Central University" },
+    { name: "AMU Aligarh", type: "Aligarh Muslim University (Central)" },
+  ],
+  rajasthan: [
+    { name: "BITS Pilani", type: "Deemed University (India's top private)" },
+    { name: "IIT Jodhpur", type: "IIT — Technology" },
+    { name: "MNIT Jaipur", type: "National Institute of Technology" },
+    { name: "University of Rajasthan", type: "State University (est. 1947)" },
+  ],
+  gujarat: [
+    { name: "IIT Gandhinagar", type: "IIT — Technology" },
+    { name: "IIM Ahmedabad", type: "IIM — Globally ranked business school" },
+    { name: "CEPT University Ahmedabad", type: "Planning & Technology" },
+    { name: "Gujarat University", type: "State University" },
+  ],
+  "dnh-dd": [
+    { name: "Government Colleges in Daman & Silvassa", type: "Regional Colleges" },
+  ],
+  "madhya-pradesh": [
+    { name: "IIT Indore", type: "IIT — Technology" },
+    { name: "IIM Indore", type: "IIM — Management" },
+    { name: "MANIT Bhopal", type: "National Institute of Technology" },
+    { name: "Barkatullah University Bhopal", type: "State University" },
+  ],
+  chhattisgarh: [
+    { name: "IIT Bhilai", type: "IIT — Technology" },
+    { name: "NIT Raipur", type: "National Institute of Technology" },
+    { name: "Pt. Ravishankar Shukla University", type: "State University" },
+    { name: "Hidayatullah National Law University", type: "National Law University" },
+  ],
+  bihar: [
+    { name: "IIT Patna", type: "IIT — Technology" },
+    { name: "NIT Patna", type: "National Institute of Technology" },
+    { name: "Nalanda University (revived ancient)", type: "International University" },
+    { name: "Patna University", type: "State University (est. 1917)" },
+  ],
+  jharkhand: [
+    { name: "IIT (ISM) Dhanbad", type: "IIT — Mining & Technology (est. 1926)" },
+    { name: "NIT Jamshedpur", type: "National Institute of Technology" },
+    { name: "Ranchi University", type: "State University" },
+    { name: "XLRI Jamshedpur", type: "Premier Management Institute" },
+  ],
+  sikkim: [
+    { name: "Sikkim University", type: "Central University" },
+    { name: "SMIT Majitar", type: "Sikkim Manipal Institute of Technology" },
+  ],
+  "west-bengal": [
+    { name: "IIT Kharagpur", type: "IIT — Technology (India's first IIT, est. 1951)" },
+    { name: "IIM Calcutta", type: "IIM — India's first management school" },
+    { name: "Jadavpur University", type: "State University (top engineering)" },
+    { name: "Calcutta University", type: "State University (est. 1857)" },
+    { name: "Presidency University", type: "Liberal Arts & Sciences" },
+  ],
+  odisha: [
+    { name: "IIT Bhubaneswar", type: "IIT — Technology" },
+    { name: "NIT Rourkela", type: "National Institute of Technology" },
+    { name: "KIIT University", type: "Deemed University" },
+    { name: "Utkal University", type: "State University (est. 1943)" },
+  ],
+  maharashtra: [
+    { name: "IIT Bombay", type: "IIT — Technology (QS top 150 globally)" },
+    { name: "TIFR Mumbai", type: "Tata Institute of Fundamental Research" },
+    { name: "Mumbai University", type: "State University (800+ colleges)" },
+    { name: "Savitribai Phule Pune University", type: "State University" },
+    { name: "IIM Nagpur", type: "IIM — Management" },
+  ],
+  goa: [
+    { name: "Goa University", type: "State University" },
+    { name: "NIT Goa", type: "National Institute of Technology" },
+    { name: "BITS Pilani, Goa Campus", type: "Deemed University" },
+  ],
+  telangana: [
+    { name: "IIT Hyderabad", type: "IIT — Technology" },
+    { name: "University of Hyderabad", type: "Central University" },
+    { name: "ISB Hyderabad", type: "Indian School of Business (global MBA)" },
+    { name: "BITS Pilani, Hyderabad Campus", type: "Deemed University" },
+  ],
+  "andhra-pradesh": [
+    { name: "IIT Tirupati", type: "IIT — Technology" },
+    { name: "IISER Tirupati", type: "Science & Research" },
+    { name: "VIT University Vellore", type: "Top Private Deemed University" },
+    { name: "Andhra University", type: "State University (est. 1926)" },
+  ],
+  karnataka: [
+    { name: "IISc Bangalore", type: "Indian Institute of Science (top research globally)" },
+    { name: "IIM Bangalore", type: "IIM — Management (top 3)" },
+    { name: "NLSIU Bangalore", type: "National Law School (India's #1 law school)" },
+    { name: "IIIT Bangalore", type: "Information Technology" },
+    { name: "Manipal Academy of Higher Education", type: "Deemed University" },
+  ],
+  kerala: [
+    { name: "IIT Palakkad", type: "IIT — Technology" },
+    { name: "NIT Calicut", type: "National Institute of Technology" },
+    { name: "Cochin University (CUSAT)", type: "State University" },
+    { name: "Amrita Vishwa Vidyapeetham", type: "Top Private Deemed University" },
+    { name: "Kerala University", type: "State University" },
+  ],
+  "tamil-nadu": [
+    { name: "IIT Madras", type: "IIT — Technology (India's #1 by NIRF)" },
+    { name: "Anna University", type: "State Technical University (500+ colleges)" },
+    { name: "NIT Trichy", type: "National Institute of Technology" },
+    { name: "IIM Trichy", type: "IIM — Management" },
+    { name: "Vellore Institute of Technology (VIT)", type: "Top Private University" },
+  ],
+  puducherry: [
+    { name: "Pondicherry University", type: "Central University" },
+    { name: "Auroville Learning Community", type: "Alternative Education Centre" },
+  ],
+  lakshadweep: [
+    { name: "Lakshadweep College of Education", type: "Regional College" },
+    { name: "Community Vocational Resource Centres", type: "Skill Training Institutes" },
+  ],
+  "andaman-nicobar": [
+    { name: "Dr. Bhimrao Ambedkar University (BAUAG)", type: "Regional University" },
+    { name: "NIOT Port Blair Field Station", type: "Ocean Research Institute" },
+  ],
+  assam: [
+    { name: "IIT Guwahati", type: "IIT — Technology (premier NE India institute)" },
+    { name: "Gauhati University", type: "Central University" },
+    { name: "Cotton University Guwahati", type: "State University (est. 1901)" },
+    { name: "Assam Engineering College", type: "State Engineering (est. 1947)" },
+  ],
+  "arunachal-pradesh": [
+    { name: "NIT Arunachal Pradesh", type: "National Institute of Technology" },
+    { name: "Rajiv Gandhi University", type: "Central University" },
+    { name: "Don Bosco College Itanagar", type: "Degree College" },
+  ],
+  nagaland: [
+    { name: "Nagaland University", type: "Central University" },
+    { name: "NIT Nagaland", type: "National Institute of Technology" },
+    { name: "St. Joseph's College Jakhama", type: "Autonomous Degree College" },
+  ],
+  manipur: [
+    { name: "NIT Manipur", type: "National Institute of Technology" },
+    { name: "Manipur University", type: "Central University" },
+    { name: "RIMS Imphal", type: "Regional Institute of Medical Sciences" },
+  ],
+  mizoram: [
+    { name: "NIT Mizoram", type: "National Institute of Technology" },
+    { name: "Mizoram University", type: "Central University" },
+    { name: "Pachhunga University College", type: "Autonomous College" },
+  ],
+  tripura: [
+    { name: "NIT Agartala", type: "National Institute of Technology" },
+    { name: "Tripura University", type: "Central University" },
+    { name: "ICFAI University Tripura", type: "Private University" },
+  ],
+  meghalaya: [
+    { name: "IIM Shillong", type: "IIM — Management" },
+    { name: "NIT Meghalaya", type: "National Institute of Technology" },
+    { name: "NEHU Shillong", type: "North-Eastern Hill University (Central)" },
+    { name: "Martin Luther Christian University", type: "Private University" },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Film Industry Map
+   ───────────────────────────────────────────────────────────── */
+const filmIndustryMap = {
+  maharashtra: {
+    industry: "Bollywood",
+    language: "Hindi",
+    notes: "World's most prolific film industry by output. Home of Filmcity, Yash Raj Films, Dharma Productions and India's biggest star system.",
+    studios: "Film City Mumbai, Mehboob Studios, Natraj Studios",
+    notable: "150+ Hindi films annually; Mumbai hosts Netflix, Amazon Prime India HQs. Pioneered the Indian studio system.",
+    icon: "🎥",
+  },
+  "tamil-nadu": {
+    industry: "Kollywood",
+    language: "Tamil",
+    notes: "South India's largest film industry. Known for mass entertainers, technical grandeur and devoted fan culture. Home of the legendary Kodambakkam studio belt.",
+    studios: "Kodambakkam Studio Belt, AVM Studios, Chennai International Film Festival",
+    notable: "Home of Rajinikanth, Kamal Haasan; Kollywood films increasingly cross pan-India and global borders.",
+    icon: "🌟",
+  },
+  telangana: {
+    industry: "Tollywood (Telugu)",
+    language: "Telugu",
+    notes: "Fastest-growing film industry in India with pan-national audience reach. Ramoji Film City is the world's largest certified film studio complex.",
+    studios: "Ramoji Film City (world's largest), Annapurna Studios, Hyderabad Film Industry",
+    notable: "Baahubali & RRR became global phenomena; strong VFX, production and post-production infrastructure.",
+    icon: "🎞️",
+  },
+  "andhra-pradesh": {
+    industry: "Tollywood (Telugu shared)",
+    language: "Telugu",
+    notes: "Shares the Telugu film universe with Telangana. Devotional cinema around Tirupati and regional rural stories are strong niches.",
+    studios: "Shared with Hyderabad ecosystem; location shoots across coastal Andhra and Rayalaseema",
+    notable: "Strong star fan culture and a long tradition of regional storytelling and folklore cinema.",
+    icon: "🎬",
+  },
+  karnataka: {
+    industry: "Sandalwood",
+    language: "Kannada",
+    notes: "Named after Mysore's sandalwood heritage. A growing industry producing quality content with a new generation of visionary filmmakers.",
+    studios: "Bangalore Film Industry hub; Mysore and Coorg as shoot locations",
+    notable: "Kantara (2022) became a global cultural sensation and announced Kannada cinema to the world.",
+    icon: "🌿",
+  },
+  kerala: {
+    industry: "Mollywood",
+    language: "Malayalam",
+    notes: "Celebrated for realistic, nuanced and deeply human storytelling. Malayalam films regularly win National Awards and screen at international festivals.",
+    studios: "Thiruvananthapuram production hub; locations across backwaters, hills and heritage towns",
+    notable: "Strong auteur tradition (Adoor, Shaji, Lijo Jose Pellissery); powerful global OTT footprint.",
+    icon: "🌴",
+  },
+  "west-bengal": {
+    industry: "Tollywood (Bengali)",
+    language: "Bengali",
+    notes: "Pioneer of Indian parallel and art cinema. Satyajit Ray's Apu Trilogy is among the greatest films ever made. Kolkata hosts a major international film festival.",
+    studios: "Tollygunge Film Studios (Tollywood — the original), NFDC productions",
+    notable: "Home of Satyajit Ray, Mrinal Sen, Rituparno Ghosh — defining names of world cinema.",
+    icon: "🎭",
+  },
+  punjab: {
+    industry: "Punjabi Cinema",
+    language: "Punjabi",
+    notes: "A rapidly growing industry powered by music-video culture, diaspora markets and a strong connection between cinema and Punjabi pop music.",
+    studios: "Chandigarh and Mohali production hub; village and rural Punjab locations",
+    notable: "Punjabi films and music dominate YouTube globally; massive following in UK, Canada, and Australia.",
+    icon: "🎵",
+  },
+  assam: {
+    industry: "Jollywood (Assamese)",
+    language: "Assamese",
+    notes: "Assamese cinema has a long artistic tradition dating to the 1930s. Tea estates, Brahmaputra riverscapes and wildlife parks are iconic visual settings.",
+    studios: "Guwahati production hub; Kaziranga and Majuli Island for documentary shoots",
+    notable: "Jahnu Barua's films brought Assamese cinema to the national awards circuit in the 1980s–90s.",
+    icon: "🍃",
+  },
+  rajasthan: {
+    industry: "Major Shoot Destination",
+    language: "Hindi (primary) / Rajasthani",
+    notes: "Rajasthan is among India's most-filmed states. Forts, palaces, deserts and vibrant havelis make it a go-to location for big-budget Bollywood and international productions.",
+    studios: "No major studio hub but extensive government film promotion; Jaisalmer Film Festival",
+    notable: "Thousands of Bollywood, OTT and international productions have used Jaisalmer, Udaipur, and Jodhpur as backdrops.",
+    icon: "🏰",
+  },
 };
 
 const traditionalDressMap = {
@@ -1490,6 +2086,157 @@ async function openKnowledgeEntry(entry, options = {}) {
   }
 }
 
+/* ── Rendering Helpers for Rich Category Boards ──────────── */
+
+function renderGiTagsHtml(stateId, fallbackItems) {
+  const tags = giProductsMap[stateId] || fallbackItems.map((item) => ({ name: item, type: "craft" }));
+  const legend = [
+    { type: "textile", label: "Textile" },
+    { type: "craft", label: "Craft" },
+    { type: "art", label: "Art" },
+    { type: "food", label: "Food" },
+    { type: "agri", label: "Agri" },
+  ];
+  const legendHtml = legend
+    .map((l) => `<span class="gi-tag gi-tag--${l.type}">${l.label}</span>`)
+    .join("");
+  const tagsHtml = tags
+    .map((t) => `<span class="gi-tag gi-tag--${t.type || "craft"}">${escapeHtml(t.name)}</span>`)
+    .join("");
+  return `
+    <div class="gi-tags-wrap">
+      <p class="gi-tags-intro">Legend</p>
+      <div class="gi-tags-grid" style="margin-bottom:14px">${legendHtml}</div>
+      <p class="gi-tags-intro">Certified &amp; Signature Products</p>
+      <div class="gi-tags-grid">${tagsHtml}</div>
+    </div>
+  `;
+}
+
+function renderFilmBannerHtml(stateId, place) {
+  const film = filmIndustryMap[stateId];
+  if (film) {
+    const facts = [
+      { label: "Industry Name", value: film.industry },
+      { label: "Primary Language", value: film.language },
+      { label: "Studios / Hubs", value: film.studios },
+      { label: "Notable", value: film.notable },
+    ];
+    return `
+      <div class="film-banner">
+        <span class="film-banner-reel">${film.icon || "🎬"}</span>
+        <div class="film-banner-copy">
+          <span class="film-banner-name">${escapeHtml(film.industry)}</span>
+          <span class="film-banner-lang">${escapeHtml(film.language)} Cinema</span>
+        </div>
+      </div>
+      <div class="film-facts-row">
+        ${facts.map((f, i) => `
+          <div class="film-fact" style="animation-delay:${i * 70}ms">
+            <span class="film-fact-label">${escapeHtml(f.label)}</span>
+            <span class="film-fact-value">${escapeHtml(f.value)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <p style="line-height:1.7;color:#607080;margin:0">${escapeHtml(film.notes)}</p>
+    `;
+  }
+  const scenic = getScenicReference(place);
+  const signature = getDiscoverySignature(place);
+  const defaults = getDiscoveryDefault(place);
+  const screenNote = signature.cinema || defaults.cinema || `${place.name} offers distinctive visual landscapes used in Indian film and media.`;
+  return `
+    <div class="film-banner">
+      <span class="film-banner-reel">🎬</span>
+      <div class="film-banner-copy">
+        <span class="film-banner-name">${escapeHtml(place.name)} on Screen</span>
+        <span class="film-banner-lang">Shoot Destination &amp; Story Setting</span>
+      </div>
+    </div>
+    <div class="film-facts-row">
+      <div class="film-fact" style="animation-delay:0ms">
+        <span class="film-fact-label">Iconic Setting</span>
+        <span class="film-fact-value">${escapeHtml(scenic.label)}</span>
+      </div>
+      <div class="film-fact" style="animation-delay:70ms">
+        <span class="film-fact-label">Story Texture</span>
+        <span class="film-fact-value">${escapeHtml(place.famousFor.split(",")[0])}</span>
+      </div>
+    </div>
+    <p style="line-height:1.7;color:#607080;margin:0">${escapeHtml(screenNote)}</p>
+  `;
+}
+
+function renderVirtualStepsHtml(place) {
+  const scenic = getScenicReference(place);
+  const dress = getDressReference(place);
+  const signature = getDiscoverySignature(place);
+  const defaults = getDiscoveryDefault(place);
+  const giItems = (giProductsMap[place.id] || []).slice(0, 2).map((t) => t.name);
+  const foodItems = signature.food || [`${place.majorCity} street food`];
+  const festival = signature.festival || defaults.festivals || "local festivals";
+  const steps = [
+    {
+      label: "Open the Map",
+      desc: `Click ${place.name} on the India map — watch its region light up and every layer of this explorer attach to that single state.`,
+    },
+    {
+      label: "Set the Visual Anchor",
+      desc: `${scenic.label} is your visual gateway. It anchors the heritage and tourism layer and connects to the image panel above.`,
+    },
+    {
+      label: "Explore Attire & Craft",
+      desc: `${dress.name} is the state's traditional style signature. Pair it with ${giItems.length > 0 ? giItems.join(" and ") : "GI-tagged local products"} from the craft tradition.`,
+    },
+    {
+      label: "Taste the Cuisine",
+      desc: `${foodItems.slice(0, 2).join(", ")} represent the food identity of ${place.name}. The food tab reveals the full culinary map.`,
+    },
+    {
+      label: "Join the Festival",
+      desc: `${festival} — this is how ${place.name} performs its identity in public. The Festivals tab fills in the calendar and community detail.`,
+    },
+    {
+      label: "Read Innovation & Industry",
+      desc: `Switch to Innovation and Industry tabs to see how tradition meets the modern economy in ${place.name}.`,
+    },
+  ];
+  return `
+    <div class="vr-steps">
+      ${steps.map((step, i) => `
+        <div class="vr-step" style="animation-delay:${i * 80}ms">
+          <div class="vr-step-num">${i + 1}</div>
+          <div class="vr-step-body">
+            <span class="vr-step-label">${escapeHtml(step.label)}</span>
+            <span class="vr-step-desc">${escapeHtml(step.desc)}</span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderEduListHtml(stateId, place) {
+  const institutes = educationMap[stateId] || [
+    { name: `${place.capital} University`, type: "State University" },
+    { name: `NIT ${place.majorCity}`, type: "National Institute of Technology" },
+  ];
+  const icons = ["🏛️", "🔬", "📚", "⚗️", "🖥️"];
+  return `
+    <div class="edu-list">
+      ${institutes.map((inst, i) => `
+        <div class="edu-item" style="animation-delay:${i * 65}ms">
+          <span class="edu-icon">${icons[i % icons.length]}</span>
+          <div class="edu-body">
+            <span class="edu-name">${escapeHtml(inst.name)}</span>
+            <span class="edu-type">${escapeHtml(inst.type)}</span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function buildDiscoveryPayload(place, categoryId) {
   const defaults = getDiscoveryDefault(place);
   const signature = getDiscoverySignature(place);
@@ -1635,23 +2382,21 @@ function buildDiscoveryPayload(place, categoryId) {
           { label: giItems[0], meta: "Signature textile or craft", url: searchUrl(`${place.name} ${giItems[0]}`) },
         ],
       };
-    case "education":
+    case "education": {
+      const eduInstCount = (educationMap[place.id] || []).length;
       return {
         kicker: "Education Institutes",
         title: `${place.name}: campuses, talent routes and learning hubs`,
-        subtitle: `Where students, coaching, research and professional education cluster`,
-        copy: `${defaults.education} In ${place.name}, education energy often gathers around ${place.capital} and ${place.majorCity}, feeding both local aspirations and national mobility.`,
-        points: [
-          ["Academic anchor", `${place.capital} is a major academic and administrative node.`],
-          ["Urban talent route", `${place.majorCity} supports student migration, professional training and campus spillovers.`],
-          ["State lens", defaults.education],
-          ["Opportunity mode", `Education often intersects here with ${place.famousFor.toLowerCase()}.`],
-        ],
+        subtitle: `${eduInstCount > 0 ? `${eduInstCount} featured institutes` : "Regional education hubs"} — where students, research and professional education cluster`,
+        copy: `${defaults.education} In ${place.name}, education energy concentrates around ${place.capital} and ${place.majorCity}, feeding both local aspirations and national talent pipelines.`,
+        customHtml: renderEduListHtml(place.id, place),
+        points: [],
         links: [
           { label: `${place.name} Universities`, meta: "Institute search", url: searchUrl(`${place.name} universities and institutes`) },
           { label: place.capital, meta: "Capital campuses", url: searchUrl(`${place.capital} colleges and universities`) },
         ],
       };
+    }
     case "innovation":
       return {
         kicker: "Innovation & Technology",
@@ -1703,50 +2448,54 @@ function buildDiscoveryPayload(place, categoryId) {
           { label: foodItems[0], meta: "Product trail", url: searchUrl(`${place.name} ${foodItems[0]}`) },
         ],
       };
-    case "gi":
+    case "gi": {
+      const giTagCount = (giProductsMap[place.id] || []).length;
+      const firstGiName = (giProductsMap[place.id] || [])[0]?.name || giItems[0];
       return {
-        kicker: "GI State-Wise Tags",
-        title: `${place.name}: GI and signature products`,
-        subtitle: `The products people instantly associate with the state`,
-        copy: `This layer highlights the products, textiles and food signatures most strongly tied to ${place.name}. It works like a quick visual tag cloud for identity, gifting, tourism and exports.`,
-        points: giItems.map((item, index) => [`Tag ${index + 1}`, item]),
+        kicker: "GI & Famous Products of India",
+        title: `${place.name}: GI-tagged & signature products`,
+        subtitle: `${giTagCount > 0 ? `${giTagCount} products listed` : "Signature items"} — certified identity, craft, food and heritage`,
+        copy: `India's Geographical Indication (GI) system protects products uniquely tied to their place of origin. This board shows ${place.name}'s certified and signature products — each tag represents a living tradition of craft, agriculture or cuisine.`,
+        customHtml: renderGiTagsHtml(place.id, giItems),
+        points: [],
         links: [
-          { label: `${place.name} GI products`, meta: "State-wise product search", url: searchUrl(`${place.name} GI products`) },
-          { label: giItems[0], meta: "Signature product", url: searchUrl(`${place.name} ${giItems[0]}`) },
+          { label: `${place.name} GI Products`, meta: "Official GI registry search", url: searchUrl(`${place.name} GI tagged products India`) },
+          { label: firstGiName || place.name, meta: "Signature product", url: searchUrl(`${place.name} ${firstGiName || "GI product"} origin`) },
         ],
       };
-    case "film":
+    }
+    case "film": {
+      const filmData = filmIndustryMap[place.id];
       return {
         kicker: "Film Industry",
-        title: `${place.name}: screen culture and visual storytelling`,
-        subtitle: `Cinema, streaming, music videos and shoot locations`,
-        copy: `${signature.cinema || defaults.cinema} This category lets users imagine the state as a screen world, not just a map region.`,
-        points: [
-          ["Screen note", signature.cinema || defaults.cinema],
-          ["Visual setting", scenic.label],
-          ["Story texture", `${place.famousFor} gives the state strong production texture.`],
-          ["Location mode", `${place.highlights[0]} and ${place.highlights[1]} are instant visual anchors.`],
-        ],
+        title: filmData
+          ? `${filmData.industry} — ${place.name}'s screen universe`
+          : `${place.name}: screen culture and visual storytelling`,
+        subtitle: filmData
+          ? `${filmData.language} cinema | ${filmData.studios.split(",")[0]}`
+          : `Cinema, streaming, music videos and shoot locations`,
+        copy: filmData
+          ? filmData.notes
+          : `${signature.cinema || defaults.cinema} This tab brings the state to life as a cinematic world — from heritage locations to living cultural energy.`,
+        customHtml: renderFilmBannerHtml(place.id, place),
+        points: [],
         links: [
-          { label: `${place.name} Film`, meta: "Film search", url: searchUrl(`${place.name} film industry and shooting locations`) },
-          { label: scenic.label, meta: "Scenic location", url: scenic.pages?.[0] ? wikiUrl(scenic.pages[0]) : cultureLink },
+          { label: filmData ? `${filmData.industry}` : `${place.name} Film`, meta: "Film industry search", url: searchUrl(filmData ? `${filmData.industry} film industry` : `${place.name} film industry and shooting locations`) },
+          { label: scenic.label, meta: "Iconic shoot location", url: scenic.pages?.[0] ? wikiUrl(scenic.pages[0]) : cultureLink },
         ],
       };
+    }
     case "virtual":
       return {
         kicker: "Virtual Experience",
-        title: `${place.name}: build a virtual state experience`,
-        subtitle: `A guided route through map, image, attire, food and culture`,
-        copy: `Start on the map, zoom into ${scenic.label}, glance at ${dress.name}, then move through food, craft and festival layers. This is where the interface becomes a virtual exhibition rather than a simple facts page.`,
-        points: [
-          ["Step 1", `Open the map and select ${place.name}.`],
-          ["Step 2", `Use ${scenic.label} as your visual anchor.`],
-          ["Step 3", `Follow ${dress.name}, ${foodItems[0]} and ${giItems[0]} as experience tags.`],
-          ["Step 4", `End with ${signature.festival || defaults.festivals} to imagine the state in motion.`],
-        ],
+        title: `${place.name}: your guided interactive journey`,
+        subtitle: `A step-by-step route through map, image, attire, food, craft and festival`,
+        copy: `This is the full Discover India experience — where the map, image panel, dress card, GI tags, food and festival layers all work together to simulate a virtual exhibition of ${place.name}. Follow these steps in order.`,
+        customHtml: renderVirtualStepsHtml(place),
+        points: [],
         links: [
-          { label: `${place.name} Experience`, meta: "Virtual travel search", url: searchUrl(`${place.name} virtual tour`) },
-          { label: `${place.name} Interactive Story`, meta: "State journey search", url: searchUrl(`${place.name} culture food tourism itinerary`) },
+          { label: `${place.name} Virtual Tour`, meta: "Virtual travel search", url: searchUrl(`${place.name} virtual tour`) },
+          { label: `${place.name} Travel Guide`, meta: "State journey search", url: searchUrl(`${place.name} culture food tourism itinerary`) },
         ],
       };
     default:
@@ -1760,6 +2509,7 @@ function renderDiscoveryTabs() {
   discoveryTabs.innerHTML = discoveryCategories
     .map((category) => `
       <button class="discovery-tab${category.id === activeDiscoveryCategory ? " is-active" : ""}" type="button" data-discovery-id="${category.id}">
+        <span class="discovery-tab-icon">${category.icon || "📌"}</span>
         <span class="discovery-tab-label">${category.label}</span>
       </button>
     `)
@@ -1783,13 +2533,18 @@ function renderDiscoveryBoardForPlace(place) {
   discoveryBoard.classList.remove("is-refreshing");
   void discoveryBoard.offsetWidth;
   discoveryBoard.classList.add("is-refreshing");
+  discoveryBoard.dataset.category = activeDiscoveryCategory;
   discoveryKicker.textContent = payload.kicker;
   discoveryTitle.textContent = payload.title;
   discoverySubtitle.textContent = payload.subtitle;
   discoveryCopy.textContent = payload.copy;
-  discoveryPoints.innerHTML = payload.points
-    .map(([label, value], index) => renderDiscoveryPoint(label, value, index))
-    .join("");
+  if (payload.customHtml) {
+    discoveryPoints.innerHTML = payload.customHtml;
+  } else {
+    discoveryPoints.innerHTML = payload.points
+      .map(([label, value], index) => renderDiscoveryPoint(label, value, index))
+      .join("");
+  }
   discoveryLinks.innerHTML = payload.links
     .map((entry) =>
       renderKnowledgeLink({
