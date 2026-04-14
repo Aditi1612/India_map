@@ -710,6 +710,11 @@ const locationColorMap = locations.reduce((accumulator, place, index) => {
   return accumulator;
 }, {});
 
+const MAP_HOVER_BOOST = 18;
+const MAP_ACTIVE_BOOST = -24;
+const MAP_BORDER_COLOR = "#1b2430";
+const MAP_SELECTED_BORDER_COLOR = "#ffffff";
+
 const mapShell = document.getElementById("india-map-shell");
 const directory = document.getElementById("state-directory");
 const searchInput = document.getElementById("state-search");
@@ -721,8 +726,26 @@ const detailNeighbors = document.getElementById("detail-neighbors");
 const factsGrid = document.getElementById("facts-grid");
 const legend = document.getElementById("legend");
 const detailFunFact = document.getElementById("detail-fun-fact");
+const discoveryTabs = document.getElementById("discovery-tabs");
+const discoveryBoard = document.getElementById("discovery-board");
+const discoveryKicker = document.getElementById("discovery-kicker");
+const discoveryTitle = document.getElementById("discovery-title");
+const discoverySubtitle = document.getElementById("discovery-subtitle");
+const discoveryCopy = document.getElementById("discovery-copy");
+const discoveryPoints = document.getElementById("discovery-points");
+const discoveryLinks = document.getElementById("discovery-links");
 const languageLinks = document.getElementById("language-links");
 const detailLinks = document.getElementById("detail-links");
+const knowledgeStudioSection = document.getElementById("knowledge-studio-section");
+const knowledgeStudio = document.getElementById("knowledge-studio");
+const knowledgeImage = document.getElementById("knowledge-image");
+const knowledgeKicker = document.getElementById("knowledge-kicker");
+const knowledgeImageStatus = document.getElementById("knowledge-image-status");
+const knowledgeMeta = document.getElementById("knowledge-meta");
+const knowledgeTitle = document.getElementById("knowledge-title");
+const knowledgeSummary = document.getElementById("knowledge-summary");
+const knowledgePoints = document.getElementById("knowledge-points");
+const knowledgeSource = document.getElementById("knowledge-source");
 const detailImage = document.getElementById("detail-image");
 const detailImageStatus = document.getElementById("detail-image-status");
 const detailImageCredit = document.getElementById("detail-image-credit");
@@ -739,10 +762,16 @@ let svgRootRef = null;
 const svgElementMap = new Map();
 const stateImageCache = new Map();
 const dressImageCache = new Map();
+const knowledgeTopicCache = new Map();
+const knowledgeEntryRegistry = new Map();
 let activeImageRequest = 0;
 let activeDressRequest = 0;
+let activeKnowledgeRequest = 0;
 let overviewTypeToken = 0;
 let heroTypeToken = 0;
+let activeDiscoveryCategory = "geography";
+let currentDiscoveryPlace = null;
+let knowledgeEntrySequence = 0;
 
 function shiftHexColor(color, amount) {
   const normalized = color.replace("#", "");
@@ -755,7 +784,7 @@ function shiftHexColor(color, amount) {
 }
 
 function getLocationMapColor(placeId) {
-  return locationColorMap[placeId] || "#b7e5fb";
+  return locationColorMap[placeId] || "#b9dff0";
 }
 
 const svgAliasMap = {
@@ -855,6 +884,170 @@ const heroPhrases = [
   "watch the facts come alive.",
 ];
 
+const discoveryCategories = [
+  { id: "geography", label: "Geography & States", kicker: "Discover India" },
+  { id: "culture", label: "Languages, Art & Culture", kicker: "Living Culture" },
+  { id: "food", label: "Food & Cuisine", kicker: "Flavours" },
+  { id: "heritage", label: "Heritage & Tourism", kicker: "Travel Lens" },
+  { id: "climate", label: "Climate & Lifestyle", kicker: "Everyday Rhythms" },
+  { id: "attire", label: "Jewelry & Attire", kicker: "Style Archive" },
+  { id: "festivals", label: "Festivals", kicker: "Celebration Calendar" },
+  { id: "crafts", label: "Handicrafts & Textiles", kicker: "Craft Atlas" },
+  { id: "education", label: "Education Institutes", kicker: "Campus Trail" },
+  { id: "innovation", label: "Innovation & Technology", kicker: "Future India" },
+  { id: "industries", label: "Major Industries", kicker: "Economic Pulse" },
+  { id: "agri", label: "Agri Products", kicker: "Fields & Orchards" },
+  { id: "gi", label: "GI & Signature Products", kicker: "Tagged Treasures" },
+  { id: "film", label: "Film Industry", kicker: "Screen Stories" },
+  { id: "virtual", label: "Virtual Experience", kicker: "Interactive Journey" },
+];
+
+const regionalDiscoveryDefaults = {
+  north: {
+    culture: "Mountain pilgrimages, folk music, layered courtly histories and craft traditions shape everyday identity across the northern belt.",
+    climate: "Snow-fed rivers, cold winters in the hills and warm plains create a dramatic seasonal rhythm.",
+    lifestyle: "Pilgrimage routes, orchards, military towns, tourism circuits and bustling mandis all shape local life.",
+    jewelry: "Silver ornaments, embroidered shawls and ceremonial headwear are strong visual signatures here.",
+    crafts: "Wool, woodwork, embroidery, metal craft and heritage weaving remain strong craft anchors.",
+    education: "Capitals and major cities host state universities, professional colleges, research campuses and public-service exam ecosystems.",
+    innovation: "Mobility services, tourism tech, agri-tech and public digital services are expanding through urban corridors.",
+    industries: "Tourism, food processing, handicrafts, light manufacturing, services and logistics all play visible roles.",
+    agri: "Wheat, rice, dairy, apples, saffron, pulses and horticulture products appear across northern supply chains.",
+    festivals: "Harvest fairs, devotional yatras and seasonal melas fill the cultural calendar.",
+    cinema: "Northern landscapes frequently appear in travel storytelling, music videos and mainstream Indian cinema.",
+  },
+  west: {
+    culture: "Merchant routes, royal heritage, desert performance traditions and coastal trade stories define western India.",
+    climate: "Arid interiors meet long coastlines, giving the west both desert heat and maritime livelihoods.",
+    lifestyle: "Bazaars, ports, tourism hubs, textile towns and entrepreneurial urban centers keep the region energetic.",
+    jewelry: "Mirror-work styling, tribal silver jewelry, lacquer accents and bold festive attire are widely associated with the west.",
+    crafts: "Bandhani, embroidery, block printing, pottery and leather craft create a strong handmade identity.",
+    education: "Western capitals and industrial cities are packed with management schools, design institutes and engineering campuses.",
+    innovation: "Start-up culture, fintech, manufacturing tech, clean energy and logistics platforms are especially visible here.",
+    industries: "Ports, petrochemicals, textiles, gems, tourism, automobiles and finance give the west an industrial edge.",
+    agri: "Cotton, groundnut, bajra, cumin, dairy and fruit belts support both domestic and export markets.",
+    festivals: "Navratri, desert fairs and community festivals often turn public spaces into giant performance stages.",
+    cinema: "The west supports commercial film, music-video production, ad shoots and heritage-location storytelling.",
+  },
+  central: {
+    culture: "Temple architecture, forest communities, classical heritage and wildlife stories shape the central heartland.",
+    climate: "Hot summers, monsoon-fed forests and broad inland plateaus define the region's environmental rhythm.",
+    lifestyle: "Market towns, reserves, pilgrimage circuits, mining belts and heritage cities create a mixed pace of life.",
+    jewelry: "Traditional tribal ornaments, bead work, silver pieces and practical festive attire are widely seen.",
+    crafts: "Tribal craft, weaving, metalwork, terracotta and natural-dye traditions remain important cultural carriers.",
+    education: "Regional capitals act as education magnets for professional colleges, state universities and coaching ecosystems.",
+    innovation: "Public-sector research, digital governance, clean-energy pilots and emerging start-up clusters are growing steadily.",
+    industries: "Mining, energy, forest products, cement, engineering, tourism and public-sector activity are major pillars.",
+    agri: "Soybean, wheat, rice, pulses, forest produce and oilseeds shape much of the agri economy.",
+    festivals: "Temple festivals, folk fairs and seasonal harvest celebrations connect cities with rural traditions.",
+    cinema: "Wildlife, forts and inland landscapes make central India a strong location for documentaries and feature shoots.",
+  },
+  east: {
+    culture: "River civilizations, classical music, literary traditions, temple culture and artisan networks give the east enormous depth.",
+    climate: "Humid plains, river basins and monsoon dependence create lush landscapes and dense settlement patterns.",
+    lifestyle: "Rail towns, heritage cities, sacred rivers, craft hubs and market agriculture all influence daily life.",
+    jewelry: "Filigree work, woven drapes, ceremonial sarees and gold-toned festive styling are common references.",
+    crafts: "Textiles, applique, handloom, terracotta, stone carving and fine metal craft stand out strongly.",
+    education: "Historic universities, technical institutes and civil-service coaching centers are spread across eastern cities.",
+    innovation: "The east is strengthening digital services, manufacturing corridors, heavy industry and research-led urban growth.",
+    industries: "Steel, rail-linked manufacturing, mining, handloom, tourism and services shape the wider eastern economy.",
+    agri: "Rice, jute, pulses, fisheries, tea pockets and orchard products remain central to livelihoods.",
+    festivals: "Durga Puja, chariot festivals and river-linked celebrations give the east a strong public cultural pulse.",
+    cinema: "The east contributes literary cinema, regional storytelling, music traditions and heritage-based productions.",
+  },
+  south: {
+    culture: "Temple towns, classical arts, layered linguistic identities and deeply rooted food traditions define the south.",
+    climate: "Coasts, plateaus and hill belts create a mix of humid maritime weather and milder upland climates.",
+    lifestyle: "Education hubs, IT cities, temple tourism, port economies and strong local community networks all coexist here.",
+    jewelry: "Temple jewelry, silk drapes, gold accents and ceremonial flower styling are iconic in the south.",
+    crafts: "Silk weaving, wood carving, bronze work, handloom and natural-fiber crafts all remain culturally important.",
+    education: "Major southern cities are packed with universities, medical colleges, engineering campuses and research centers.",
+    innovation: "India's strongest IT, biotech, deep-tech and startup ecosystems are concentrated in southern corridors.",
+    industries: "IT services, electronics, automobiles, textiles, ports, pharmaceuticals and tourism drive growth here.",
+    agri: "Rice, spices, coconut, coffee, banana, sugarcane and plantation crops define many southern food landscapes.",
+    festivals: "Pongal, Onam, Ugadi and temple festivals make the calendar highly seasonal and community-driven.",
+    cinema: "The south powers several major film industries with big studio ecosystems and star-driven storytelling.",
+  },
+  northeast: {
+    culture: "Indigenous languages, bamboo craft, community festivals and music-rich traditions give the northeast a distinct cultural voice.",
+    climate: "Cloud forests, heavy rainfall, river valleys and highland climates make the northeast ecologically diverse.",
+    lifestyle: "Hillside towns, border trade, handloom traditions, music scenes and close-knit communities shape everyday life.",
+    jewelry: "Beadwork, woven wraps, silver accents and community-specific ceremonial attire are major visual signatures.",
+    crafts: "Handloom weaving, bamboo craft, cane work and organic textile traditions are cultural mainstays.",
+    education: "Regional capitals host central universities, technical campuses and professional institutes serving wide catchments.",
+    innovation: "Digital inclusion, tourism platforms, music entrepreneurship and agri-processing are fast-emerging themes.",
+    industries: "Tea, handloom, handicrafts, tourism, bamboo, food processing and energy projects are key sectors.",
+    agri: "Tea, rice, oranges, pineapple, spices, bamboo and horticulture products are especially visible.",
+    festivals: "Community harvest festivals and culture-led tourism events are major public highlights.",
+    cinema: "The region is increasingly visible in independent cinema, music videos and landscape-focused storytelling.",
+  },
+  islands: {
+    culture: "Island communities blend maritime life, layered histories and small-scale ceremonial traditions.",
+    climate: "Tropical humidity, sea breezes and monsoon cycles define both livelihood patterns and travel seasons.",
+    lifestyle: "Fishing, tourism, coastal services and tightly knit settlements shape day-to-day life.",
+    jewelry: "Shell accents, lightweight festive dressing and coastal craft motifs feel especially rooted here.",
+    crafts: "Natural fibers, shell work, boat-linked craft and island souvenirs play a visible role.",
+    education: "Island centers rely on public colleges, vocational institutes and mainland academic linkages.",
+    innovation: "Sustainability, marine services, digital outreach and tourism infrastructure are the strongest emerging themes.",
+    industries: "Tourism, fisheries, coir, marine services and public-sector provisioning dominate the economy.",
+    agri: "Coconut, spices, fisheries and tropical produce sustain many island households.",
+    festivals: "Community events, tourism seasons and maritime celebrations animate the public calendar.",
+    cinema: "The islands often appear in travel cinema, scenic montages and destination-based visual storytelling.",
+  },
+  union: {
+    culture: "Union territories often combine administrative significance with distinct local heritage and hybrid identities.",
+    climate: "Urban density, coastal settings or mountain geography shape each union territory in very different ways.",
+    lifestyle: "Government institutions, tourism pockets, compact city life and hybrid cultures make these regions stand out.",
+    jewelry: "Regional attire often blends neighboring state influences with local ceremonial details.",
+    crafts: "UT craft stories are usually shaped by local heritage markets and nearby state traditions.",
+    education: "Compact geographies often focus on flagship colleges, public universities and specialized institutes.",
+    innovation: "Administrative modernization, public services and tourism-led digital experiences are especially visible here.",
+    industries: "Services, tourism, public administration, heritage commerce and light manufacturing are common drivers.",
+    agri: "Agriculture is often selective here, with niche produce, peri-urban farming or island-based livelihoods.",
+    festivals: "Public celebrations often mix state-level influence with local civic and heritage festivals.",
+    cinema: "UTs regularly appear as scenic backdrops, urban frames or heritage locations in Indian media.",
+  },
+};
+
+const stateSignatureMap = {
+  "jammu-kashmir": { food: ["Wazwan feasts", "Kahwa", "Rogan josh"], festival: "Tulip season and shrine-linked cultural gatherings", gi: ["Kashmir saffron", "Pashmina", "Kani shawl"], cinema: "The valley remains one of the most iconic visual backdrops in Hindi cinema." },
+  ladakh: { food: ["Thukpa", "Skyu", "Butter tea"], festival: "Losar and monastic festival circuits", gi: ["Ladakhi pashmina", "Apricot craft markets"], cinema: "Ladakh powers high-altitude adventure visuals and travel-driven film storytelling." },
+  "himachal-pradesh": { food: ["Siddu", "Madra", "Himachali dham"], festival: "Kullu Dussehra and mountain fairs", gi: ["Kullu shawl", "Kangra tea"], cinema: "Hill roads, cedar forests and valley towns make Himachal a favorite shoot region." },
+  punjab: { food: ["Makki di roti", "Sarson da saag", "Lassi"], festival: "Baisakhi and gurdwara-centered celebrations", gi: ["Basmati belts", "Phulkari craft"], cinema: "Punjabi cinema and music-video culture give the state a huge visual footprint." },
+  chandigarh: { food: ["Punjabi platters", "Street chaat", "Cafe culture"], festival: "Rose Festival and civic cultural events", gi: ["Design-led craft markets", "Phulkari retail circuits"], cinema: "Chandigarh often appears in polished urban montages and youth-driven films." },
+  haryana: { food: ["Bajra khichri", "Kadhi", "Lassi"], festival: "Surajkund craft season and harvest gatherings", gi: ["Basmati rice", "Rural handloom circuits"], cinema: "Haryana's sports and small-town stories increasingly feed streaming-era narratives." },
+  delhi: { food: ["Chaat", "Paranthe", "Mughlai street food"], festival: "Republic-season spectacle and citywide festive diversity", gi: ["Heritage food lanes", "Craft corridors"], cinema: "Delhi anchors political drama, urban coming-of-age stories and heritage shoots." },
+  uttarakhand: { food: ["Kafuli", "Aloo ke gutke", "Bal mithai"], festival: "Char Dham season and local jatras", gi: ["Pahadi rajma", "Ringal craft"], cinema: "Riverfronts, yoga hubs and mountain towns shape Uttarakhand's screen identity." },
+  "uttar-pradesh": { food: ["Tunday kebabs", "Petha", "Banarasi sweets"], festival: "Deep spiritual calendars from Kashi to Ayodhya", gi: ["Banarasi saree", "Lucknow chikankari", "Agra petha"], cinema: "UP powers period drama, sacred-city stories and heartland screen narratives." },
+  rajasthan: { food: ["Dal baati churma", "Ghevar", "Laal maas"], festival: "Desert fairs and grand palace festivals", gi: ["Blue pottery", "Kota doria", "Mojari craft"], cinema: "Forts and desert expanses make Rajasthan a classic cinematic spectacle state." },
+  gujarat: { food: ["Dhokla", "Undhiyu", "Thepla"], festival: "Navratri garba season", gi: ["Patola", "Bandhani", "Gir Kesar mango"], cinema: "Gujarat often appears in entrepreneurial stories and heritage-coast visuals." },
+  "dnh-dd": { food: ["Coastal seafood", "Gujarati thalis", "Millet dishes"], festival: "Beach-town celebrations and folk fairs", gi: ["Diu heritage crafts", "Tribal souvenir markets"], cinema: "Seaside forts and quiet promenades give the UT a niche location appeal." },
+  "madhya-pradesh": { food: ["Poha-jalebi", "Bhutte ka kees", "Mawa bati"], festival: "Temple fairs and forest-edge celebrations", gi: ["Maheshwari saree", "Chanderi"], cinema: "Wildlife parks and temple complexes make MP a strong destination for shoots." },
+  chhattisgarh: { food: ["Chila", "Fara", "Red-ant chutney traditions"], festival: "Bastar Dussehra and tribal ceremonial calendars", gi: ["Kosa silk", "Bell metal craft"], cinema: "Chhattisgarh is increasingly visible through tribal arts and landscape documentaries." },
+  bihar: { food: ["Litti chokha", "Thekua", "Khaja"], festival: "Chhath and deeply rooted ritual observances", gi: ["Madhubani art", "Bhagalpuri silk"], cinema: "Bihar's literary, political and migration stories shape many screen narratives." },
+  jharkhand: { food: ["Dhuska", "Rugra dishes", "Pitha"], festival: "Sarhul and tribal community festivals", gi: ["Sohrai-Khovar art", "Tasar silk"], cinema: "Jharkhand adds forest, plateau and mining-belt settings to realism-driven cinema." },
+  sikkim: { food: ["Momos", "Thukpa", "Gundruk"], festival: "Losoong and monastery-linked celebrations", gi: ["Large cardamom", "Sikkim handloom"], cinema: "Sikkim's alpine roads and monastery towns create postcard-like film frames." },
+  "west-bengal": { food: ["Macher jhol", "Rosogolla", "Kathi rolls"], festival: "Durga Puja as a full-scale public arts spectacle", gi: ["Darjeeling tea", "Baluchari saree", "Shantiniketan leather"], cinema: "Bengal sustains a powerful literary and auteur cinema tradition." },
+  odisha: { food: ["Dalma", "Chhena poda", "Pakhala"], festival: "Rath Yatra and temple calendars", gi: ["Odissi ikat", "Silver filigree", "Pipili applique"], cinema: "Temple routes and coastal heritage shape Odisha's visual storytelling." },
+  maharashtra: { food: ["Vada pav", "Puran poli", "Misal pav"], festival: "Ganesh Utsav and city-scale cultural programming", gi: ["Paithani", "Kolhapuri chappal", "Alphonso mango"], cinema: "Maharashtra is the heartland of India's mainstream film economy." },
+  goa: { food: ["Goan fish curry", "Bebinca", "Poi"], festival: "Carnival and church-feast calendars", gi: ["Feni", "Kunbi weaving"], cinema: "Goa is a favorite for festival culture, destination shoots and music-led visuals." },
+  telangana: { food: ["Hyderabadi biryani", "Sakinalu", "Haleem"], festival: "Bathukamma and old-city festive traditions", gi: ["Pochampally ikat", "Silver filigree"], cinema: "Hyderabad supports studio-scale production and pan-Indian screen work." },
+  "andhra-pradesh": { food: ["Gongura", "Pulihora", "Pesarattu"], festival: "Sankranti and temple-town celebrations", gi: ["Kalamkari", "Kondapalli toys", "Tirupati laddu"], cinema: "The state is deeply linked with Telugu cinema and devotional visual culture." },
+  karnataka: { food: ["Bisi bele bath", "Mysore pak", "Neer dosa"], festival: "Mysuru Dasara and regional temple festivals", gi: ["Mysore silk", "Ilkal saree", "Bidriware"], cinema: "Karnataka blends Kannada cinema, indie music culture and heritage-city visuals." },
+  kerala: { food: ["Sadya", "Appam and stew", "Malabar biryani"], festival: "Onam and temple-arts calendars", gi: ["Aranmula mirror", "Kasavu", "Malabar pepper"], cinema: "Kerala's film culture is known for visual realism and strong storytelling craft." },
+  "tamil-nadu": { food: ["Idli-dosa", "Chettinad cuisine", "Filter coffee"], festival: "Pongal and giant temple-festival circuits", gi: ["Kanchipuram silk", "Tanjore art", "Madurai sungudi"], cinema: "Tamil Nadu powers one of India's most influential film industries." },
+  puducherry: { food: ["Tamil-French fusion plates", "Seafood curries", "Cafe desserts"], festival: "Promenade celebrations and heritage-cultural events", gi: ["Auroville craft stores", "Pondy design markets"], cinema: "Puducherry often appears in nostalgic coastal and art-house screen settings." },
+  lakshadweep: { food: ["Tuna dishes", "Coconut-rich curries", "Island breads"], festival: "Island community celebrations tied to mosque and sea life", gi: ["Coir products", "Marine craft souvenirs"], cinema: "Its lagoons fit destination visuals and marine travel storytelling." },
+  "andaman-nicobar": { food: ["Seafood platters", "Coconut dishes", "Island produce"], festival: "Island tourism seasons and local cultural gatherings", gi: ["Shell craft", "Nicobari handicraft traditions"], cinema: "The islands deliver tropical cinematic imagery and historical-tourism visuals." },
+  assam: { food: ["Mekhela-inspired festive spreads", "Khar", "Pitha"], festival: "Bihu across the agricultural calendar", gi: ["Assam tea", "Muga silk", "Joha rice"], cinema: "Tea estates and river landscapes strongly shape Assam's visual identity." },
+  "arunachal-pradesh": { food: ["Thukpa", "Bamboo shoot dishes", "Smoked meats"], festival: "Losar, Solung and community harvest festivals", gi: ["Yak wool craft", "Monpa weaving"], cinema: "Highland monasteries and dramatic ridgelines make Arunachal visually striking." },
+  nagaland: { food: ["Smoked pork", "Axone dishes", "Sticky rice"], festival: "Hornbill Festival and tribe-led cultural showcases", gi: ["Naga shawls", "Bead craft"], cinema: "Nagaland's music culture and festival visuals are central to its screen appeal." },
+  manipur: { food: ["Eromba", "Chamthong", "Black rice desserts"], festival: "Yaoshang and Ras Lila traditions", gi: ["Phanek weaving", "Black pottery"], cinema: "Manipur links dance, martial arts and sport-driven narratives on screen." },
+  mizoram: { food: ["Bai", "Smoked pork", "Sticky rice"], festival: "Chapchar Kut and community music culture", gi: ["Puan textiles", "Bamboo craft"], cinema: "Mizoram's hills and choir-rich culture suit intimate documentary storytelling." },
+  tripura: { food: ["Mui borok", "Wahan mosdeng", "Rice cakes"], festival: "Kharchi Puja and palace-linked festivities", gi: ["Rignai weaving", "Bamboo craft"], cinema: "Tripura contributes palace, lake and borderland settings to visual stories." },
+  meghalaya: { food: ["Jadoh", "Dohneiiong", "Tungrymbai"], festival: "Wangala and music-season celebrations", gi: ["Eri silk", "Cane craft"], cinema: "Cloud forests and root bridges make Meghalaya instantly cinematic." },
+};
+
 const traditionalDressMap = {
   "jammu-kashmir": { name: "Pheran", style: "robe", colors: ["#6b8ea6", "#f1e5d1", "#c55b3d"], pages: ["Pheran"] },
   ladakh: { name: "Goncha", style: "robe", colors: ["#8f3028", "#e8c16a", "#2d4d66"], pages: ["Goncha", "Pheran"] },
@@ -942,6 +1135,15 @@ function factCard(label, value) {
   `;
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function wikiUrl(title) {
   return `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`;
 }
@@ -1001,6 +1203,30 @@ async function loadWikiImageFromCandidates(candidates, cacheMap) {
   }
 
   return null;
+}
+
+async function fetchWikiTopic(pageTitle) {
+  if (!pageTitle) return null;
+  if (knowledgeTopicCache.has(pageTitle)) {
+    return knowledgeTopicCache.get(pageTitle);
+  }
+
+  const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`);
+  if (!response.ok) {
+    throw new Error(`Topic request failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const topic = {
+    title: data.title || pageTitle,
+    description: data.description || "",
+    extract: data.extract || "",
+    src: data.originalimage?.source || data.thumbnail?.source || "",
+    canonicalUrl: data.content_urls?.desktop?.page || wikiUrl(pageTitle),
+  };
+
+  knowledgeTopicCache.set(pageTitle, topic);
+  return topic;
 }
 
 function createDressSvg(dress) {
@@ -1067,13 +1293,522 @@ function normalizeLanguageChunks(languageText) {
     .filter((item) => item !== "regional languages");
 }
 
-function renderKnowledgeLink({ label, meta, url }) {
+function registerKnowledgeEntry(entry) {
+  const entryId = `knowledge-${++knowledgeEntrySequence}`;
+  knowledgeEntryRegistry.set(entryId, entry);
+  return entryId;
+}
+
+function bindKnowledgeEntryToElement(element, entry) {
+  if (!element) return;
+  const entryId = registerKnowledgeEntry(entry);
+  element.dataset.knowledgeId = entryId;
+}
+
+function renderKnowledgeLink(entry) {
+  const entryId = registerKnowledgeEntry(entry);
   return `
-    <a class="knowledge-link" href="${url}" target="_blank" rel="noreferrer">
-      <span class="knowledge-link-label">${label}</span>
-      <span class="knowledge-link-meta">${meta}</span>
-    </a>
+    <button class="knowledge-link" type="button" data-knowledge-id="${entryId}">
+      <span class="knowledge-link-label">${escapeHtml(entry.label)}</span>
+      <span class="knowledge-link-meta">${escapeHtml(entry.meta)}</span>
+    </button>
   `;
+}
+
+function renderDiscoveryPoint(label, value, index) {
+  return `
+    <article class="discovery-point" style="animation-delay:${index * 60}ms">
+      <span class="discovery-point-label">${label}</span>
+      <span class="discovery-point-value">${value}</span>
+    </article>
+  `;
+}
+
+function capitalizeWords(text) {
+  return text.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function getDiscoverySignature(place) {
+  return stateSignatureMap[place.id] || {};
+}
+
+function getDiscoveryDefault(place) {
+  return regionalDiscoveryDefaults[place.region] || regionalDiscoveryDefaults.union;
+}
+
+function renderKnowledgePoint(label, value, index) {
+  return `
+    <article class="knowledge-point" style="animation-delay:${index * 60}ms">
+      <span class="knowledge-point-label">${escapeHtml(label)}</span>
+      <span class="knowledge-point-value">${escapeHtml(value)}</span>
+    </article>
+  `;
+}
+
+function findPlaceById(placeId) {
+  return locations.find((entry) => entry.id === placeId) || null;
+}
+
+function getKnowledgeFallbackSummary(entry, place) {
+  if (entry.summary) return entry.summary;
+  if (place) {
+    return `${entry.label} connects back to ${place.name}, which is known for ${place.famousFor.toLowerCase()}. Explore this panel to keep learning without leaving the page.`;
+  }
+
+  return "This topic opens inside the page so the experience stays immersive and interactive.";
+}
+
+function getKnowledgeFallbackPoints(entry, place) {
+  if (Array.isArray(entry.points) && entry.points.length > 0) {
+    return entry.points;
+  }
+
+  if (!place) {
+    return [
+      ["Topic", entry.label],
+      ["Mode", "Same-page explorer"],
+    ];
+  }
+
+  return [
+    ["State", place.name],
+    ["Capital", place.capital],
+    ["Known for", place.famousFor],
+    ["Highlights", place.highlights.slice(0, 2).join(", ")],
+  ];
+}
+
+async function applyKnowledgeImage(entry, place, topic, requestId) {
+  if (!knowledgeImage || !knowledgeImageStatus) return;
+
+  const imageCandidates = [
+    entry.imagePage,
+    entry.wikiTitle,
+    topic?.title,
+    getScenicReference(place || currentDiscoveryPlace || locations[0]).pages?.[0],
+    place ? getWikiPage(place) : null,
+  ].filter(Boolean);
+
+  let imageInfo = null;
+
+  if (topic?.src) {
+    imageInfo = {
+      src: topic.src,
+      title: topic.title,
+      description: topic.description || "",
+    };
+  } else {
+    imageInfo = await loadWikiImageFromCandidates(imageCandidates, stateImageCache);
+  }
+
+  if (requestId !== activeKnowledgeRequest) return;
+
+  knowledgeImage.classList.remove("is-ready");
+
+  if (imageInfo?.src) {
+    knowledgeImage.onload = () => {
+      if (requestId === activeKnowledgeRequest) {
+        knowledgeImage.classList.add("is-ready");
+      }
+    };
+    knowledgeImage.src = imageInfo.src;
+    knowledgeImage.alt = `${entry.label} visual`;
+    knowledgeImageStatus.textContent = imageInfo.description
+      ? `${entry.label} - ${imageInfo.description}`
+      : `${entry.label} visual loaded`;
+    if (imageInfo.description) {
+      knowledgeImageStatus.textContent = `${entry.label} - ${imageInfo.description}`;
+    }
+    return;
+  }
+
+  knowledgeImage.removeAttribute("src");
+  knowledgeImage.alt = `${entry.label} visual`;
+  knowledgeImageStatus.textContent = `${entry.label} is open in the studio.`;
+}
+
+async function openKnowledgeEntry(entry, options = {}) {
+  if (!knowledgeStudio || !knowledgeKicker || !knowledgeMeta || !knowledgeTitle || !knowledgeSummary || !knowledgePoints || !knowledgeSource) {
+    return;
+  }
+
+  const { scroll = true } = options;
+  const requestId = ++activeKnowledgeRequest;
+  const place = findPlaceById(entry.placeId) || currentDiscoveryPlace;
+
+  knowledgeStudio.classList.remove("is-refreshing");
+  void knowledgeStudio.offsetWidth;
+  knowledgeStudio.classList.add("is-refreshing");
+
+  knowledgeKicker.textContent = entry.kicker || "Same-page explorer";
+  knowledgeMeta.textContent = entry.meta || "Interactive topic";
+  knowledgeTitle.textContent = entry.viewerTitle || entry.label;
+  knowledgeSummary.textContent = "Loading this topic inside the page...";
+  knowledgePoints.innerHTML = [
+    ["Region", place?.name || "India Explorer"],
+    ["Topic", entry.label],
+  ]
+    .map(([label, value], index) => renderKnowledgePoint(label, value, index))
+    .join("");
+  knowledgeSource.textContent = "Collecting summary and image details...";
+  knowledgeImageStatus.textContent = `Opening ${entry.label} here...`;
+  if (knowledgeImage) {
+    knowledgeImage.classList.remove("is-ready");
+    knowledgeImage.removeAttribute("src");
+  }
+
+  let topic = null;
+
+  if (entry.wikiTitle) {
+    try {
+      topic = await fetchWikiTopic(entry.wikiTitle);
+    } catch (error) {
+      topic = null;
+    }
+  }
+
+  if (requestId !== activeKnowledgeRequest) return;
+
+  knowledgeMeta.textContent = topic?.description
+    ? `${entry.meta} - ${topic.description}`
+    : entry.meta || "Interactive topic";
+  knowledgeTitle.textContent = entry.viewerTitle || topic?.title || entry.label;
+  knowledgeSummary.textContent = topic?.extract || getKnowledgeFallbackSummary(entry, place);
+  knowledgePoints.innerHTML = getKnowledgeFallbackPoints(entry, place)
+    .map(([label, value], index) => renderKnowledgePoint(label, value, index))
+    .join("");
+  knowledgeSource.textContent = topic?.title
+    ? `Source mode: Wikipedia summary for ${topic.title}. The topic is shown inside this page instead of redirecting you away.`
+    : "Source mode: Curated explorer content shown directly inside this page.";
+
+  applyKnowledgeImage(entry, place, topic, requestId);
+
+  if (scroll && knowledgeStudioSection) {
+    window.requestAnimationFrame(() => {
+      knowledgeStudioSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+}
+
+function buildDiscoveryPayload(place, categoryId) {
+  const defaults = getDiscoveryDefault(place);
+  const signature = getDiscoverySignature(place);
+  const scenic = getScenicReference(place);
+  const dress = getDressReference(place);
+  const cultureLink = wikiUrl(getWikiPage(place));
+  const foodItems = signature.food || [
+    `${capitalizeWords(place.region)} regional staples`,
+    `${place.majorCity} food streets`,
+    `${place.famousFor.split(",")[0]}`,
+  ];
+  const giItems = signature.gi || [dress.name, place.highlights[0], place.famousFor.split(",")[0]];
+
+  switch (categoryId) {
+    case "geography":
+      return {
+        kicker: "Interactive Digital Interface",
+        title: `Discover India: ${place.name} geography and state profile`,
+        subtitle: `${place.type} | ${place.capital} | code ${place.code}`,
+        copy: `${place.overview} This view turns the map into an atlas layer, so the state sits inside a larger India story through borders, waterways, routes and neighbours.`,
+        points: [
+          ["Capital", place.capital],
+          ["Neighbourhood", place.neighbors],
+          ["Current status", `In its present form since ${place.formed}`],
+          ["Highlights", place.highlights.join(", ")],
+        ],
+        links: [
+          { label: `${place.name} Atlas`, meta: "State overview", url: cultureLink },
+          { label: "Map context", meta: "Geography search", url: searchUrl(`${place.name} geography and map`) },
+        ],
+      };
+    case "culture":
+      return {
+        kicker: "Languages, Art and Culture",
+        title: `${place.name}: language, art and living culture`,
+        subtitle: `Voices, heritage memory and performance traditions`,
+        copy: `${defaults.culture} In ${place.name}, language identity flows through ${place.languages.toLowerCase()}, while places like ${place.highlights.slice(0, 2).join(" and ")} keep public culture visible.`,
+        points: [
+          ["Languages", place.languages],
+          ["Cultural pulse", `${place.name} is especially known for ${place.famousFor.toLowerCase()}.`],
+          ["Scene setter", `${place.highlights[0]} and ${place.highlights[1]} act like cultural anchors.`],
+          ["Identity", `${place.type} stories connect local tradition with the wider ${regionPalette[place.region].name.toLowerCase()} region.`],
+        ],
+        links: [
+          { label: `${place.name} Culture`, meta: "Explore more", url: searchUrl(`${place.name} art and culture`) },
+          { label: place.languages.split(",")[0].trim(), meta: "Lead language", url: wikiUrl(languageWikiMap[place.languages.split(",")[0].trim()] || place.languages.split(",")[0].trim()) },
+        ],
+      };
+    case "food":
+      return {
+        kicker: "Food and Cuisine",
+        title: `${place.name}: signature tastes and food trails`,
+        subtitle: `From home-style staples to destination dishes`,
+        copy: `${place.name} can be explored through food just as much as through geography. The strongest entry points are its local staples, festive plates and the food lanes around ${place.majorCity}.`,
+        points: foodItems.map((item, index) => [`Food ${index + 1}`, item]),
+        links: [
+          { label: `${place.name} Food`, meta: "Cuisine search", url: searchUrl(`${place.name} traditional food`) },
+          { label: place.majorCity, meta: "Food in the major city", url: searchUrl(`${place.majorCity} best local food`) },
+        ],
+      };
+    case "heritage":
+      return {
+        kicker: "Heritage and Tourism",
+        title: `${place.name}: heritage routes and travel icons`,
+        subtitle: `Monuments, sacred sites, landscapes and city memory`,
+        copy: `${place.name} is best experienced as a layered travel circuit. ${scenic.label} is one anchor, while ${place.highlights.join(", ")} create a fuller tourism map around it.`,
+        points: [
+          ["Scenic anchor", scenic.label],
+          ["Must-see trail", place.highlights.join(", ")],
+          ["Travel identity", place.famousFor],
+          ["Suggested mode", `Use ${place.majorCity} as a gateway and build outward.`],
+        ],
+        links: [
+          { label: scenic.label, meta: "Landmark page", url: scenic.pages?.[0] ? wikiUrl(scenic.pages[0]) : cultureLink },
+          { label: `${place.name} Tourism`, meta: "Trip ideas", url: searchUrl(`${place.name} tourism places`) },
+        ],
+      };
+    case "climate":
+      return {
+        kicker: "Climate and Lifestyle",
+        title: `${place.name}: climate, seasons and lifestyle rhythm`,
+        subtitle: `How weather shapes food, housing, clothing and movement`,
+        copy: `${defaults.climate} In ${place.name}, that climate pattern shows up in dress, food timing, travel seasons and the everyday rhythm of work, festivals and tourism.`,
+        points: [
+          ["Climate lens", defaults.climate],
+          ["Lifestyle note", defaults.lifestyle],
+          ["Everyday setting", `${place.majorCity} and ${place.capital} reflect how local routines adapt to place.`],
+          ["Travel mood", `${scenic.label} is one of the clearest seasonal windows into the state.`],
+        ],
+        links: [
+          { label: `${place.name} Seasons`, meta: "Climate search", url: searchUrl(`${place.name} climate and weather`) },
+          { label: scenic.label, meta: "Landscape anchor", url: scenic.pages?.[0] ? wikiUrl(scenic.pages[0]) : cultureLink },
+        ],
+      };
+    case "attire":
+      return {
+        kicker: "Traditional Jewelry and Attire",
+        title: `${place.name}: attire, jewelry and ceremonial style`,
+        subtitle: `What people wear for festivals, memory and identity`,
+        copy: `${defaults.jewelry} In ${place.name}, ${dress.name} is the strongest visual marker in this interface, paired with festive styling that changes with season, ceremony and region.`,
+        points: [
+          ["Attire spotlight", dress.name],
+          ["Jewelry lens", defaults.jewelry],
+          ["Style mood", `${place.name} attire often pairs with ${signature.gi?.[0] || "regional textile traditions"}.`],
+          ["Visual cue", `Open the dress card above to keep this layer attached to the state profile.`],
+        ],
+        links: [
+          { label: dress.name, meta: "Traditional attire", url: dress.pages?.[0] ? wikiUrl(dress.pages[0]) : searchUrl(`${dress.name} ${place.name}`) },
+          { label: `${place.name} Jewelry`, meta: "Jewelry search", url: searchUrl(`${place.name} traditional jewelry`) },
+        ],
+      };
+    case "festivals":
+      return {
+        kicker: "Festivals",
+        title: `${place.name}: celebration calendar and public culture`,
+        subtitle: `How festivals animate streets, shrines, homes and stages`,
+        copy: `${signature.festival || defaults.festivals} Festivals are one of the quickest ways to understand how ${place.name} performs identity in public spaces.`,
+        points: [
+          ["Festival spotlight", signature.festival || defaults.festivals],
+          ["Public spaces", `${place.highlights[0]} and ${place.majorCity} often become cultural stages.`],
+          ["Cultural rhythm", `${place.languages.split(",")[0]} language spaces strongly shape festival expression.`],
+          ["Experience mode", `Best explored through music, dress, food and craft together.`],
+        ],
+        links: [
+          { label: `${place.name} Festivals`, meta: "Festival search", url: searchUrl(`${place.name} festivals`) },
+          { label: place.majorCity, meta: "Events in the major city", url: searchUrl(`${place.majorCity} cultural festival`) },
+        ],
+      };
+    case "crafts":
+      return {
+        kicker: "Handicrafts & Textiles",
+        title: `${place.name}: handloom, craft and textile identity`,
+        subtitle: `What the state makes by hand and wears with pride`,
+        copy: `${defaults.crafts} In this state, craft also overlaps with tourism, gifting, weddings and state branding.`,
+        points: [
+          ["Craft spotlight", giItems[0]],
+          ["Textile trail", giItems.slice(1).join(", ")],
+          ["Attire link", `${dress.name} connects this category back to living fashion.`],
+          ["Market note", `${place.majorCity} and ${place.capital} often act as retail gateways for these traditions.`],
+        ],
+        links: [
+          { label: `${place.name} Handicrafts`, meta: "Craft search", url: searchUrl(`${place.name} handicrafts and textiles`) },
+          { label: giItems[0], meta: "Signature textile or craft", url: searchUrl(`${place.name} ${giItems[0]}`) },
+        ],
+      };
+    case "education":
+      return {
+        kicker: "Education Institutes",
+        title: `${place.name}: campuses, talent routes and learning hubs`,
+        subtitle: `Where students, coaching, research and professional education cluster`,
+        copy: `${defaults.education} In ${place.name}, education energy often gathers around ${place.capital} and ${place.majorCity}, feeding both local aspirations and national mobility.`,
+        points: [
+          ["Academic anchor", `${place.capital} is a major academic and administrative node.`],
+          ["Urban talent route", `${place.majorCity} supports student migration, professional training and campus spillovers.`],
+          ["State lens", defaults.education],
+          ["Opportunity mode", `Education often intersects here with ${place.famousFor.toLowerCase()}.`],
+        ],
+        links: [
+          { label: `${place.name} Universities`, meta: "Institute search", url: searchUrl(`${place.name} universities and institutes`) },
+          { label: place.capital, meta: "Capital campuses", url: searchUrl(`${place.capital} colleges and universities`) },
+        ],
+      };
+    case "innovation":
+      return {
+        kicker: "Innovation & Technology",
+        title: `${place.name}: innovation, startup and technology pulse`,
+        subtitle: `How the state connects tradition with future-facing sectors`,
+        copy: `${defaults.innovation} In ${place.name}, the future-facing story often builds through ${place.majorCity}, state policy, logistics, tourism or niche manufacturing.`,
+        points: [
+          ["Innovation lens", defaults.innovation],
+          ["Tech anchor", `${place.majorCity} is the strongest city-level innovation reference in this state profile.`],
+          ["Digital bridge", `${place.type} governance and services help frame the modern interface layer.`],
+          ["Emerging story", `Watch how ${place.famousFor.toLowerCase()} meets digital platforms and new markets.`],
+        ],
+        links: [
+          { label: `${place.name} Technology`, meta: "Innovation search", url: searchUrl(`${place.name} innovation and technology`) },
+          { label: place.majorCity, meta: "Startup city lens", url: searchUrl(`${place.majorCity} startup ecosystem`) },
+        ],
+      };
+    case "industries":
+      return {
+        kicker: "Major Industries",
+        title: `${place.name}: economic engines and major industries`,
+        subtitle: `The sectors that keep goods, jobs and services moving`,
+        copy: `${defaults.industries} ${place.name} also stands out for ${place.famousFor.toLowerCase()}, making this category a bridge between economy, identity and livelihood.`,
+        points: [
+          ["Industry lens", defaults.industries],
+          ["Known for", place.famousFor],
+          ["City connector", `${place.majorCity} helps concentrate trade, labour and market movement.`],
+          ["State role", `${regionPalette[place.region].name} India relies on this state for visible sector strength.`],
+        ],
+        links: [
+          { label: `${place.name} Industry`, meta: "Industry search", url: searchUrl(`${place.name} major industries`) },
+          { label: place.majorCity, meta: "Business hub", url: searchUrl(`${place.majorCity} industry and economy`) },
+        ],
+      };
+    case "agri":
+      return {
+        kicker: "Agri Products",
+        title: `${place.name}: farm, orchard and field products`,
+        subtitle: `What grows here and how agriculture shapes the state story`,
+        copy: `${defaults.agri} Agriculture in ${place.name} also feeds festivals, cuisine, exports and regional identity.`,
+        points: [
+          ["Regional produce", defaults.agri],
+          ["Food connection", foodItems.join(", ")],
+          ["Landscape tie", `${scenic.label} and nearby landscapes help explain water, terrain and seasonal output.`],
+          ["Market route", `${place.capital} and ${place.majorCity} connect farm belts to wider trade networks.`],
+        ],
+        links: [
+          { label: `${place.name} Agriculture`, meta: "Agri search", url: searchUrl(`${place.name} agriculture products`) },
+          { label: foodItems[0], meta: "Product trail", url: searchUrl(`${place.name} ${foodItems[0]}`) },
+        ],
+      };
+    case "gi":
+      return {
+        kicker: "GI State-Wise Tags",
+        title: `${place.name}: GI and signature products`,
+        subtitle: `The products people instantly associate with the state`,
+        copy: `This layer highlights the products, textiles and food signatures most strongly tied to ${place.name}. It works like a quick visual tag cloud for identity, gifting, tourism and exports.`,
+        points: giItems.map((item, index) => [`Tag ${index + 1}`, item]),
+        links: [
+          { label: `${place.name} GI products`, meta: "State-wise product search", url: searchUrl(`${place.name} GI products`) },
+          { label: giItems[0], meta: "Signature product", url: searchUrl(`${place.name} ${giItems[0]}`) },
+        ],
+      };
+    case "film":
+      return {
+        kicker: "Film Industry",
+        title: `${place.name}: screen culture and visual storytelling`,
+        subtitle: `Cinema, streaming, music videos and shoot locations`,
+        copy: `${signature.cinema || defaults.cinema} This category lets users imagine the state as a screen world, not just a map region.`,
+        points: [
+          ["Screen note", signature.cinema || defaults.cinema],
+          ["Visual setting", scenic.label],
+          ["Story texture", `${place.famousFor} gives the state strong production texture.`],
+          ["Location mode", `${place.highlights[0]} and ${place.highlights[1]} are instant visual anchors.`],
+        ],
+        links: [
+          { label: `${place.name} Film`, meta: "Film search", url: searchUrl(`${place.name} film industry and shooting locations`) },
+          { label: scenic.label, meta: "Scenic location", url: scenic.pages?.[0] ? wikiUrl(scenic.pages[0]) : cultureLink },
+        ],
+      };
+    case "virtual":
+      return {
+        kicker: "Virtual Experience",
+        title: `${place.name}: build a virtual state experience`,
+        subtitle: `A guided route through map, image, attire, food and culture`,
+        copy: `Start on the map, zoom into ${scenic.label}, glance at ${dress.name}, then move through food, craft and festival layers. This is where the interface becomes a virtual exhibition rather than a simple facts page.`,
+        points: [
+          ["Step 1", `Open the map and select ${place.name}.`],
+          ["Step 2", `Use ${scenic.label} as your visual anchor.`],
+          ["Step 3", `Follow ${dress.name}, ${foodItems[0]} and ${giItems[0]} as experience tags.`],
+          ["Step 4", `End with ${signature.festival || defaults.festivals} to imagine the state in motion.`],
+        ],
+        links: [
+          { label: `${place.name} Experience`, meta: "Virtual travel search", url: searchUrl(`${place.name} virtual tour`) },
+          { label: `${place.name} Interactive Story`, meta: "State journey search", url: searchUrl(`${place.name} culture food tourism itinerary`) },
+        ],
+      };
+    default:
+      return buildDiscoveryPayload(place, "geography");
+  }
+}
+
+function renderDiscoveryTabs() {
+  if (!discoveryTabs) return;
+
+  discoveryTabs.innerHTML = discoveryCategories
+    .map((category) => `
+      <button class="discovery-tab${category.id === activeDiscoveryCategory ? " is-active" : ""}" type="button" data-discovery-id="${category.id}">
+        <span class="discovery-tab-label">${category.label}</span>
+      </button>
+    `)
+    .join("");
+
+  discoveryTabs.querySelectorAll(".discovery-tab").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeDiscoveryCategory = button.dataset.discoveryId;
+      renderDiscoveryTabs();
+      if (currentDiscoveryPlace) {
+        renderDiscoveryBoardForPlace(currentDiscoveryPlace);
+      }
+    });
+  });
+}
+
+function renderDiscoveryBoardForPlace(place) {
+  if (!discoveryBoard || !discoveryKicker || !discoveryTitle || !discoverySubtitle || !discoveryCopy || !discoveryPoints || !discoveryLinks) return;
+
+  const payload = buildDiscoveryPayload(place, activeDiscoveryCategory);
+  discoveryBoard.classList.remove("is-refreshing");
+  void discoveryBoard.offsetWidth;
+  discoveryBoard.classList.add("is-refreshing");
+  discoveryKicker.textContent = payload.kicker;
+  discoveryTitle.textContent = payload.title;
+  discoverySubtitle.textContent = payload.subtitle;
+  discoveryCopy.textContent = payload.copy;
+  discoveryPoints.innerHTML = payload.points
+    .map(([label, value], index) => renderDiscoveryPoint(label, value, index))
+    .join("");
+  discoveryLinks.innerHTML = payload.links
+    .map((entry) =>
+      renderKnowledgeLink({
+        ...entry,
+        kicker: payload.kicker,
+        placeId: place.id,
+        viewerTitle: `${entry.label} - ${place.name}`,
+        summary: entry.summary || `${payload.copy} Focus topic: ${entry.label}.`,
+        points: entry.points || payload.points,
+        imagePage: entry.wikiTitle || getScenicReference(place).pages?.[0],
+      }),
+    )
+    .join("");
+}
+
+function renderDiscoveryStudio(place) {
+  currentDiscoveryPlace = place;
+  renderDiscoveryTabs();
+  renderDiscoveryBoardForPlace(place);
 }
 
 function typeText(element, text, speed = 18, tokenKey = "overview") {
@@ -1167,7 +1902,7 @@ function applyStateImage(place, imageInfo, scenic) {
 }
 
 function renderLegend() {
-  const samples = locations.slice(0, 6);
+  const samples = locations.slice(0, 8);
 
   legend.innerHTML = [
     '<span class="legend-chip">Each state and UT has its own color</span>',
@@ -1177,7 +1912,7 @@ function renderLegend() {
         ${place.code}
       </span>
     `),
-    '<span class="legend-chip"><span class="legend-swatch" style="background:#17384a"></span>Selected</span>',
+    '<span class="legend-chip"><span class="legend-swatch" style="background:#ffffff"></span>Selected border</span>',
   ].join("");
 }
 
@@ -1199,8 +1934,19 @@ function renderLanguageLinkSet(place) {
     .map((entry) =>
       renderKnowledgeLink({
         label: entry.name,
-        meta: "Language page",
-        url: wikiUrl(entry.title),
+        meta: "Language story",
+        kicker: "Language Rabbit Hole",
+        viewerTitle: `${entry.name} in ${place.name}`,
+        wikiTitle: entry.title,
+        viewerTitle: `${entry.label} - ${place.name}`,
+        placeId: place.id,
+        summary: `${entry.name} is part of the language story of ${place.name}. Use this on-page panel to connect language, place, and culture without leaving the explorer.`,
+        points: [
+          ["Seen in", place.name],
+          ["State languages", place.languages],
+          ["Capital anchor", place.capital],
+          ["Culture tie", place.famousFor],
+        ],
       }),
     )
     .join("");
@@ -1214,21 +1960,39 @@ function renderDetailLinkSet(place) {
       label: `${place.name}`,
       meta: "State or UT overview",
       url: wikiUrl(stateTitle),
+      wikiTitle: stateTitle,
     },
     {
       label: `${capitalTitle}`,
       meta: "Capital details",
       url: wikiUrl(capitalTitle),
+      wikiTitle: capitalTitle,
     },
     {
       label: `${place.majorCity}`,
       meta: "Major city page",
       url: wikiUrl(place.majorCity),
+      wikiTitle: place.majorCity,
     },
   ];
 
   detailLinks.innerHTML = links
-    .map((entry) => renderKnowledgeLink(entry))
+    .map((entry) =>
+      renderKnowledgeLink({
+        ...entry,
+        kicker: "Deep Dive Topic",
+        viewerTitle: `${entry.label} - ${place.name}`,
+        wikiTitle: entry.wikiTitle,
+        placeId: place.id,
+        summary: `${entry.label} helps explain the wider story of ${place.name}, from geography and city life to culture, heritage, and daily rhythms.`,
+        points: [
+          ["Region", place.name],
+          ["Capital", place.capital],
+          ["Major city", place.majorCity],
+          ["Highlights", place.highlights.slice(0, 2).join(", ")],
+        ],
+      }),
+    )
     .join("");
 }
 
@@ -1251,7 +2015,22 @@ function renderDressSpotlight(place) {
   dressState.textContent = scenic?.label
     ? `${place.name} style with ${scenic.label} in the backdrop.`
     : `${place.name} traditional style in a playful spotlight.`;
-  dressLink.href = dress.pages?.[0] ? wikiUrl(dress.pages[0]) : searchUrl(`traditional dress of ${place.name} ${dress.name}`);
+  bindKnowledgeEntryToElement(dressLink, {
+    label: dress.name,
+    meta: "Traditional attire",
+    kicker: "Dress Spotlight",
+    viewerTitle: `${dress.name} - ${place.name}`,
+    wikiTitle: dress.pages?.[0] || null,
+    placeId: place.id,
+    summary: `${dress.name} is part of the traditional attire story of ${place.name}. This corner card now opens the outfit story inside the same page.`,
+    points: [
+      ["State", place.name],
+      ["Style note", dress.name],
+      ["Backdrop", scenic.label],
+      ["Culture tie", place.famousFor],
+    ],
+    imagePage: dress.pages?.[0] || scenic.pages?.[0] || getWikiPage(place),
+  });
   dressLink.textContent = `About ${dress.name}`;
   loadDressImage(place, dress);
 }
@@ -1315,17 +2094,17 @@ function refreshSvgStyles(filterIds = null) {
     const isMuted = filterIds && !filterIds.has(place.id);
     const nodes = svgElementMap.get(place.id) || [];
     const baseColor = getLocationMapColor(place.id);
-    const activeColor = shiftHexColor(baseColor, -24);
+    const activeColor = shiftHexColor(baseColor, MAP_ACTIVE_BOOST);
 
     nodes.forEach((node) => {
       node.style.fill = isActive ? activeColor : baseColor;
-      node.style.stroke = isActive ? "#0f1d28" : "#1f2a35";
-      node.style.strokeWidth = isActive ? "3.2" : "1.4";
+      node.style.stroke = isActive ? MAP_SELECTED_BORDER_COLOR : MAP_BORDER_COLOR;
+      node.style.strokeWidth = isActive ? "2.8" : "1.25";
       node.style.opacity = isMuted ? "0.22" : "1";
       node.style.cursor = "pointer";
       node.style.pointerEvents = "visiblePainted";
       node.style.transition = "fill 180ms ease, opacity 180ms ease, stroke 180ms ease, stroke-width 180ms ease, filter 180ms ease";
-      node.style.filter = isActive ? "drop-shadow(0 0 6px rgba(31, 42, 53, 0.24))" : "";
+      node.style.filter = isActive ? "drop-shadow(0 0 8px rgba(255, 255, 255, 0.22))" : "";
     });
   });
 }
@@ -1347,7 +2126,7 @@ function setupSvgMap() {
       node.addEventListener("click", () => selectLocation(place.id));
       node.addEventListener("mouseenter", () => {
         if (place.id !== activeId) {
-          node.style.fill = shiftHexColor(getLocationMapColor(place.id), 18);
+          node.style.fill = shiftHexColor(getLocationMapColor(place.id), MAP_HOVER_BOOST);
         }
       });
       node.addEventListener("mouseleave", () => {
@@ -1442,6 +2221,23 @@ function selectLocation(id) {
   }
 
   renderDressSpotlight(place);
+  renderDiscoveryStudio(place);
+  openKnowledgeEntry({
+    label: place.name,
+    meta: "State spotlight",
+    kicker: "Discover India",
+    viewerTitle: `${place.name} at a glance`,
+    wikiTitle: getWikiPage(place),
+    placeId: place.id,
+    summary: `${place.overview} ${place.name} is especially known for ${place.famousFor.toLowerCase()}.`,
+    points: [
+      ["Capital", place.capital],
+      ["Languages", place.languages],
+      ["Known for", place.famousFor],
+      ["Highlights", place.highlights.slice(0, 2).join(", ")],
+    ],
+    imagePage: getScenicReference(place).pages?.[0],
+  }, { scroll: false });
 
   refreshSvgStyles(searchInput.value.trim() ? new Set(getMatches(searchInput.value).map((entry) => entry.id)) : null);
 
@@ -1489,6 +2285,17 @@ function init() {
 
   searchInput.addEventListener("input", (event) => {
     applyFilter(event.target.value);
+  });
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-knowledge-id]");
+    if (!trigger) return;
+    event.preventDefault();
+
+    const entry = knowledgeEntryRegistry.get(trigger.dataset.knowledgeId);
+    if (!entry) return;
+
+    openKnowledgeEntry(entry);
   });
 
   loadInlineMap()
