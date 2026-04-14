@@ -64,7 +64,7 @@
       <p class="hero-panel-sub">Republic of India</p>
       <div class="hero-divider"></div>
       <p class="hero-panel-body">
-        Select any state or union territory on the map. Instantly load its full profile — scenic image, traditional attire, cuisine, GI-tagged products, film industry, top colleges, and a step-by-step virtual journey.
+        Select any state or union territory on the map. Instantly explore 15 themed categories — geography, cuisine, GI products, film industry, top colleges, and a step-by-step virtual journey.
       </p>
       <div class="hero-panel-tags">
         <span class="htag htag--saffron">28 States</span>
@@ -108,118 +108,123 @@
         </div>
       </article>
 
-      <!-- RIGHT: Detail panel -->
+      <!-- RIGHT: Detail panel — 3 rows: strip / discovery / more -->
       <aside class="detail-card" id="detail-card" aria-live="polite">
 
-        <!-- 1. State Identity Bar -->
-        <div class="state-id-bar">
-          <div>
-            <p class="eyebrow state-eyebrow">Region Profile</p>
-            <h2 class="state-name" id="detail-name">Discover India</h2>
-          </div>
-          <span class="detail-region-badge" id="detail-type">Select a state</span>
-        </div>
-
-        <!-- 2. State Hero Image -->
-        <section class="detail-media-card">
-          <div class="detail-image-shell">
-            <img id="detail-image" class="detail-image" alt="Selected state">
-            <aside class="dress-corner-card" id="dress-corner-card">
-              <div class="dress-corner-visual">
-                <img id="dress-image" class="dress-image" alt="Traditional dress">
+        <!-- ── ROW 1: Compact state header strip ── -->
+        <div class="state-strip">
+          <div class="state-strip-main">
+            <div class="state-strip-text">
+              <p class="eyebrow state-eyebrow">Region Profile</p>
+              <h2 class="state-name" id="detail-name">Discover India</h2>
+              <span class="detail-region-badge" id="detail-type">Select a state</span>
+            </div>
+            <!-- Mini thumbnail -->
+            <div class="state-thumb-shell">
+              <img id="detail-image" class="state-thumb-img" alt="Selected state">
+              <div class="state-thumb-overlay">
+                <span id="detail-image-status" class="state-thumb-label">Select a region</span>
+                <span id="detail-image-credit" class="state-thumb-credit"></span>
               </div>
-              <div class="dress-corner-copy">
-                <span class="dress-corner-label">Traditional Dress</span>
-                <strong id="dress-name">Select a state</strong>
-                <span class="dress-corner-state" id="dress-state">Choose a region to preview.</span>
-                <button id="dress-link" class="dress-link" type="button">Learn more</button>
-              </div>
-            </aside>
-            <div class="detail-image-overlay">
-              <span class="detail-image-status" id="detail-image-status">Select a region to load its image.</span>
-              <span class="detail-image-credit" id="detail-image-credit"></span>
             </div>
           </div>
-        </section>
+          <!-- Compact facts row -->
+          <div class="facts-row" id="facts-grid"></div>
+        </div>
 
-        <!-- 3. Facts Grid (compact) -->
-        <div class="facts-grid" id="facts-grid"></div>
-
-        <!-- 4. Overview text -->
-        <p class="detail-overview" id="detail-overview">
-          Select a state or union territory from the map to load its full profile here.
-        </p>
-
-        <!-- 5. ★ DISCOVER INDIA — the centrepiece ★ -->
+        <!-- ── ROW 2: Discovery — centrepiece ── -->
         <section class="discovery-section">
-          <div class="discovery-section-header">
-            <span class="discovery-header-icon" aria-hidden="true">🧭</span>
-            <div>
-              <h3 class="discovery-heading">Discover India</h3>
-              <p class="discovery-intro">15 themed layers — culture, food, GI products, film, education &amp; more.</p>
-            </div>
+
+          <!-- Header bar with icon + label + category name -->
+          <div class="discovery-bar">
+            <span class="discovery-bar-icon" aria-hidden="true">🧭</span>
+            <span class="discovery-bar-label">Discover India</span>
+            <span class="discovery-bar-active" id="discovery-kicker">15 Themes · Choose a Category</span>
           </div>
 
-          <div class="discovery-studio-body">
-            <nav class="discovery-tabs" id="discovery-tabs" aria-label="Discovery categories"></nav>
-            <article class="discovery-board" id="discovery-board">
-              <div class="discovery-board-top">
-                <span class="discovery-kicker" id="discovery-kicker">Interactive Digital Interface</span>
-                <h3 class="discovery-title" id="discovery-title">Discover India: Geography and States</h3>
-                <p class="discovery-subtitle" id="discovery-subtitle">Choose a region to unlock themed stories.</p>
-              </div>
-              <p class="discovery-copy" id="discovery-copy">
-                Select a tab on the left and the board will animate into a rich state story.
-              </p>
-              <div class="discovery-points" id="discovery-points"></div>
-              <div class="knowledge-links discovery-links" id="discovery-links"></div>
-            </article>
-          </div>
-        </section>
+          <!-- Horizontal scrollable tabs -->
+          <nav class="discovery-tabs" id="discovery-tabs" aria-label="Discovery categories"></nav>
 
-        <!-- 6. Highlights + Fun Fact (compact side-by-side) -->
-        <div class="quick-two-col">
-          <section class="quick-section">
-            <h3 class="quick-heading">✨ Highlights</h3>
-            <div class="chip-row" id="detail-highlights"></div>
-          </section>
-          <section class="quick-section">
-            <h3 class="quick-heading">💡 Did You Know?</h3>
-            <p class="detail-fun-fact" id="detail-fun-fact">Pick a region to unlock a fun fact.</p>
-          </section>
-        </div>
-
-        <!-- 7. Knowledge Studio -->
-        <section class="knowledge-studio-section" id="knowledge-studio-section">
-          <div class="knowledge-studio-head">
-            <h3>🔬 Knowledge Studio</h3>
-            <p class="knowledge-studio-intro">Tap any topic card, GI tag or language link above to explore it right here.</p>
-          </div>
-          <article class="knowledge-studio" id="knowledge-studio">
-            <div class="knowledge-studio-media">
-              <img id="knowledge-image" class="knowledge-image" alt="Knowledge topic preview">
-              <div class="knowledge-image-overlay">
-                <span class="knowledge-kicker" id="knowledge-kicker">Same-page explorer</span>
-                <strong class="knowledge-image-status" id="knowledge-image-status">Choose a topic to start.</strong>
-              </div>
+          <!-- Board — scrollable content pane -->
+          <article class="discovery-board" id="discovery-board">
+            <div class="discovery-board-top">
+              <h3 class="discovery-title" id="discovery-title">Discover India: Geography and States</h3>
+              <p class="discovery-subtitle" id="discovery-subtitle">Click a state on the map, then choose a theme above.</p>
             </div>
-            <div class="knowledge-studio-copy">
-              <p class="knowledge-meta" id="knowledge-meta">Interactive story panel</p>
-              <h4 class="knowledge-title" id="knowledge-title">Knowledge Studio</h4>
-              <p class="knowledge-summary" id="knowledge-summary">Tap any discovery card, GI tag or language link and it opens here with image, summary and quick facts — no new tab needed.</p>
-              <div class="knowledge-points" id="knowledge-points"></div>
-              <p class="knowledge-source" id="knowledge-source">Source details will appear when a topic is loaded.</p>
-            </div>
+            <p class="discovery-copy" id="discovery-copy">
+              Select any state or union territory on the map — the discovery board will populate with rich themed stories for that region.
+            </p>
+            <div class="discovery-points" id="discovery-points"></div>
+            <div class="knowledge-links discovery-links" id="discovery-links"></div>
           </article>
         </section>
 
-        <!-- 8. Secondary info — collapsed by default -->
+        <!-- ── ROW 3: Collapsed extras ── -->
         <details class="secondary-details">
           <summary class="secondary-summary">
-            <span>More — language links, deep dives, neighbours &amp; directory</span>
+            <span>More — overview, dress, highlights, knowledge studio &amp; links</span>
             <span class="summary-chevron" aria-hidden="true">›</span>
           </summary>
           <div class="secondary-body">
+
+            <!-- Overview -->
+            <p class="detail-overview" id="detail-overview">
+              Select a state or union territory from the map to load its full profile here.
+            </p>
+
+            <!-- Traditional dress -->
+            <section class="detail-section">
+              <h3>Traditional Dress</h3>
+              <aside class="dress-corner-card" id="dress-corner-card">
+                <div class="dress-corner-visual">
+                  <img id="dress-image" class="dress-image" alt="Traditional dress">
+                </div>
+                <div class="dress-corner-copy">
+                  <span class="dress-corner-label">Traditional Dress</span>
+                  <strong id="dress-name">Select a state</strong>
+                  <span class="dress-corner-state" id="dress-state">Choose a region to preview.</span>
+                  <button id="dress-link" class="dress-link" type="button">Learn more</button>
+                </div>
+              </aside>
+            </section>
+
+            <!-- Highlights + Fun Fact -->
+            <div class="quick-two-col">
+              <section class="quick-section">
+                <h3 class="quick-heading">✨ Highlights</h3>
+                <div class="chip-row" id="detail-highlights"></div>
+              </section>
+              <section class="quick-section">
+                <h3 class="quick-heading">💡 Did You Know?</h3>
+                <p class="detail-fun-fact" id="detail-fun-fact">Pick a region to unlock a fun fact.</p>
+              </section>
+            </div>
+
+            <!-- Knowledge Studio -->
+            <section class="knowledge-studio-section" id="knowledge-studio-section">
+              <div class="knowledge-studio-head">
+                <h3>🔬 Knowledge Studio</h3>
+                <p class="knowledge-studio-intro">Tap any topic card, GI tag or language link above to explore it right here.</p>
+              </div>
+              <article class="knowledge-studio" id="knowledge-studio">
+                <div class="knowledge-studio-media">
+                  <img id="knowledge-image" class="knowledge-image" alt="Knowledge topic preview">
+                  <div class="knowledge-image-overlay">
+                    <span class="knowledge-kicker" id="knowledge-kicker">Same-page explorer</span>
+                    <strong class="knowledge-image-status" id="knowledge-image-status">Choose a topic to start.</strong>
+                  </div>
+                </div>
+                <div class="knowledge-studio-copy">
+                  <p class="knowledge-meta" id="knowledge-meta">Interactive story panel</p>
+                  <h4 class="knowledge-title" id="knowledge-title">Knowledge Studio</h4>
+                  <p class="knowledge-summary" id="knowledge-summary">Tap any discovery card, GI tag or language link and it opens here with image, summary and quick facts — no new tab needed.</p>
+                  <div class="knowledge-points" id="knowledge-points"></div>
+                  <p class="knowledge-source" id="knowledge-source">Source details will appear when a topic is loaded.</p>
+                </div>
+              </article>
+            </section>
+
+            <!-- Language & Deep Dive -->
             <section class="detail-section">
               <h3>Language Rabbit Holes</h3>
               <div class="knowledge-links" id="language-links"></div>
@@ -236,6 +241,7 @@
               <h3>Directory</h3>
               <div class="state-directory" id="state-directory"></div>
             </section>
+
           </div>
         </details>
 

@@ -450,12 +450,13 @@ h3 { font-size: 1.05rem; }
 
 .india-map-shell [id] { vector-effect: non-scaling-stroke; }
 
-/* ── Detail Card ─────────────────────────────────────────── */
+/* ── Detail Card — full-height flex container ─────────────── */
 .detail-card {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   position: sticky;
   top: 18px;
+  max-height: calc(100vh - 36px);
   background: var(--surface-strong);
   border-top: 4px solid var(--saffron);
   overflow: hidden;
@@ -464,105 +465,123 @@ h3 { font-size: 1.05rem; }
   flex-direction: column;
 }
 
-/* State Identity Bar */
-.state-id-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 22px 24px 16px;
+/* ── Compact State Strip (top) ───────────────────────────── */
+.state-strip {
+  flex-shrink: 0;
+  padding: 14px 18px 12px;
   background:
     radial-gradient(ellipse at top right, rgba(232,93,4,0.07), transparent 40%),
     var(--surface-warm);
   border-bottom: 1px solid var(--border);
 }
 
-.state-eyebrow { margin: 0 0 6px; }
+.state-strip-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.state-strip-text { flex: 1; min-width: 0; }
+
+.state-eyebrow { margin: 0 0 4px; }
 
 .state-name {
-  font-size: clamp(1.3rem, 2vw, 1.9rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
   color: var(--ink-2);
   line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .detail-region-badge {
-  flex-shrink: 0;
-  padding: 8px 13px;
+  display: inline-flex;
+  margin-top: 6px;
+  padding: 5px 11px;
   border-radius: 999px;
   background: var(--saffron-light);
   color: var(--saffron-deep);
-  font-size: 0.84rem;
+  font-size: 0.80rem;
   font-weight: 700;
   border: 1px solid rgba(232,93,4,0.2);
   white-space: nowrap;
-  margin-top: 2px;
 }
 
-/* ── State Hero Image ────────────────────────────────────── */
-.detail-media-card { margin: 0; }
-
-.detail-image-shell {
-  position: relative;
-  min-height: 240px;
+/* Mini thumbnail in strip */
+.state-thumb-shell {
+  flex-shrink: 0;
+  width: 110px;
+  height: 80px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  background:
-    radial-gradient(circle at 25% 15%, rgba(255,241,214,0.55), transparent 24%),
-    radial-gradient(circle at 80% 20%, rgba(232, 93, 4,0.28), transparent 22%),
-    radial-gradient(circle at 75% 75%, rgba( 0, 63,138,0.24), transparent 26%),
-    linear-gradient(135deg, #f4d8a4, #b7d1df 56%, #285b78);
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  border: 2px solid rgba(232,93,4,0.18);
+  box-shadow: 0 6px 18px rgba(26,22,40,0.14);
+  background: linear-gradient(135deg, #f4d8a4, #b7d1df 56%, #285b78);
 }
 
-.detail-image {
+.state-thumb-img {
   width: 100%;
   height: 100%;
-  min-height: 240px;
   object-fit: cover;
   display: block;
-  transform: scale(1.04);
-  transition: opacity 280ms ease, transform 900ms ease, filter 400ms ease;
   opacity: 0;
-  filter: saturate(1.06) contrast(1.03);
+  transform: scale(1.06);
+  transition: opacity 280ms ease, transform 900ms ease;
 }
 
-.detail-image.is-ready {
-  opacity: 1;
-  transform: scale(1);
-  filter: saturate(1.1) contrast(1.04);
-}
+.state-thumb-img.is-ready { opacity: 1; transform: scale(1); }
 
-.detail-image-overlay {
+.state-thumb-overlay {
   position: absolute;
   inset: auto 0 0 0;
-  padding: 18px 20px 16px;
-  background: linear-gradient(0deg, rgba(10,18,30,0.90), rgba(10,18,30,0));
-  color: #fffef8;
-  display: grid;
-  gap: 4px;
+  background: linear-gradient(0deg, rgba(10,18,30,0.80), transparent);
+  padding: 5px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.detail-image-status  { font-weight: 700; letter-spacing: 0.02em; font-size: 0.95rem; }
-.detail-image-credit  { font-size: 0.80rem; opacity: 0.70; }
+.state-thumb-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.2;
+  display: block;
+}
+
+.state-thumb-credit {
+  font-size: 0.60rem;
+  color: rgba(255,255,255,0.55);
+  display: block;
+}
+
+/* Facts row — horizontal compact strip */
+.facts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* ── Fact cards in row ───────────────────────────────────── */
+/* (old full-bleed image removed; mini thumb is now in .state-thumb-shell) */
 
 /* Traditional Dress corner card */
 .dress-corner-card {
   --dress-primary:   #b44943;
   --dress-secondary: #f1d8b5;
   --dress-accent:    #406b92;
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 200px;
+  width: 100%;
+  max-width: 320px;
   padding: 11px;
-  border-radius: 22px;
+  border-radius: 18px;
   background: rgba(255,255,255,0.96);
-  border: 1px solid rgba(255,255,255,0.80);
-  box-shadow: 0 20px 44px rgba(10,18,30,0.22), inset 0 1px 0 rgba(255,255,255,0.8);
-  z-index: 2;
+  border: 1px solid rgba(26,22,40,0.08);
+  box-shadow: 0 8px 24px rgba(10,18,30,0.10);
   display: grid;
   gap: 10px;
-  backdrop-filter: blur(10px);
-  animation: dressFloat 4.6s ease-in-out infinite;
 }
 
 .dress-corner-card.is-refreshing {
@@ -629,182 +648,164 @@ h3 { font-size: 1.05rem; }
 .dress-link:hover { text-decoration: underline; }
 .dress-link::after { content: "→"; font-size: 0.80rem; }
 
-/* ── Facts Grid (compact) ────────────────────────────────── */
-.facts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 10px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255,252,245,0.60);
-}
+/* ── Fact chips in horizontal row ────────────────────────── */
+/* .facts-row is defined above in .state-strip */
 
 .fact-card {
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
   background: rgba(255,255,255,0.90);
   border: 1px solid var(--border);
-  transform: translateY(8px);
+  transform: translateY(6px);
   opacity: 0;
-  animation: factIn 360ms ease forwards;
+  animation: factIn 320ms ease forwards;
 }
 
 .fact-label {
-  display: block;
-  font-size: 0.70rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   color: var(--saffron);
-  margin-bottom: 5px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .fact-value {
-  display: block;
   font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 0.82rem;
   color: var(--ink-2);
+  white-space: nowrap;
 }
 
-/* ── Overview ────────────────────────────────────────────── */
+/* ── Overview (inside secondary details) ─────────────────── */
 .detail-overview {
-  padding: 14px 20px;
+  padding: 10px 0;
   margin: 0;
   line-height: 1.72;
   color: var(--muted);
-  font-size: 0.94rem;
-  border-bottom: 1px solid var(--border);
-  min-height: 72px;
+  font-size: 0.92rem;
 }
 
 /* ── DISCOVER INDIA (centrepiece) ────────────────────────── */
 .discovery-section {
-  padding: 20px;
-  background:
-    radial-gradient(ellipse at top right,  rgba(232, 93, 4,0.06), transparent 34%),
-    radial-gradient(ellipse at bottom left, rgba(19,136, 8,0.05), transparent 38%),
-    rgba(255,252,247,0.96);
-  border-bottom: 1px solid var(--border);
-}
-
-.discovery-section-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.discovery-header-icon {
-  font-size: 1.6rem;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.discovery-heading {
-  margin: 0 0 4px;
-  font-family: Georgia, "Palatino Linotype", serif;
-  font-size: 1.22rem;
-  color: var(--ink-2);
-}
-
-.discovery-intro {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-/* Sidebar + Board layout */
-.discovery-studio-body {
-  display: grid;
-  grid-template-columns: 186px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-/* SIDEBAR TABS */
-.discovery-tabs {
+  flex: 1;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  position: sticky;
-  top: 18px;
+  min-height: 0;
 }
 
-.discovery-tab {
-  position: relative;
+/* Dark header bar */
+.discovery-bar {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 9px;
-  width: 100%;
-  padding: 9px 11px;
-  border-radius: 12px;
-  border: 1px solid rgba(26,22,40,0.08);
-  border-left: 3px solid transparent;
-  background: rgba(255,255,255,0.72);
-  color: var(--ink);
-  text-align: left;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #0d1b3e 0%, #142652 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.discovery-bar-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.discovery-bar-label {
+  font-size: 0.80rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.88);
+  flex-shrink: 0;
+}
+
+.discovery-bar-active {
+  margin-left: auto;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: rgba(255,200,80,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Horizontal scrollable tab pills ─────────────────────── */
+.discovery-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 5px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: linear-gradient(135deg, #111d3a 0%, #1b2e5a 100%);
+  border-bottom: 2px solid rgba(232,93,4,0.30);
+  scrollbar-width: none;
+}
+
+.discovery-tabs::-webkit-scrollbar { display: none; }
+
+.discovery-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.65);
   font: inherit;
+  font-size: 0.80rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .discovery-tab:hover,
 .discovery-tab:focus-visible {
-  background: rgba(255,255,255,0.96);
-  border-color: rgba(232,93,4,0.18);
-  border-left-color: rgba(232,93,4,0.45);
-  box-shadow: 0 4px 14px rgba(232,93,4,0.07);
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.22);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .discovery-tab.is-active {
-  background: linear-gradient(135deg, rgba(232,93,4,0.10), rgba(184,135,11,0.07));
-  border-color: rgba(232,93,4,0.22);
-  border-left: 3px solid var(--saffron);
-  box-shadow: 0 6px 18px rgba(232,93,4,0.10);
-  color: var(--saffron-deep);
-}
-
-.discovery-tab.is-active::after {
-  content: "›";
-  position: absolute;
-  right: 9px;
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--saffron);
-  opacity: 0.75;
+  background: var(--saffron);
+  border-color: var(--saffron-deep);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(232,93,4,0.40);
 }
 
 .discovery-tab-icon {
-  font-size: 1.12rem;
+  font-size: 1rem;
   line-height: 1;
   flex-shrink: 0;
-  width: 24px;
-  text-align: center;
 }
 
 .discovery-tab-label {
   display: block;
-  font-size: 0.80rem;
-  font-weight: 600;
-  line-height: 1.25;
+  line-height: 1;
 }
 
-/* BOARD */
+/* ── Discovery Board — fills remaining height ─────────────── */
 .discovery-board {
+  flex: 1;
+  overflow-y: auto;
   position: relative;
-  padding: 16px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
+  padding: 16px 18px;
   background:
     radial-gradient(circle at top right,   rgba(232,93,4,0.14), transparent 26%),
     radial-gradient(circle at bottom left, rgba(19,136,8,0.10), transparent 30%),
     linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,248,236,0.96));
-  box-shadow: 0 14px 36px rgba(26,22,40,0.09);
-  overflow: hidden;
   transition: background 300ms ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,93,4,0.25) transparent;
 }
+
+.discovery-board::-webkit-scrollbar { width: 5px; }
+.discovery-board::-webkit-scrollbar-thumb { background: rgba(232,93,4,0.25); border-radius: 3px; }
 
 .discovery-board.is-refreshing {
   animation: discoveryBoardIn 420ms ease;
@@ -1438,6 +1439,7 @@ h3 { font-size: 1.05rem; }
 
   .detail-card {
     position: static;
+    max-height: none;
   }
 
   .india-map-shell {
@@ -1475,7 +1477,6 @@ h3 { font-size: 1.05rem; }
   }
 
   .hero-stats,
-  .facts-grid,
   .state-directory,
   .knowledge-points,
   .discovery-points,
@@ -1496,32 +1497,10 @@ h3 { font-size: 1.05rem; }
 
   .india-map-shell { min-height: 480px; }
 
-  .discovery-studio-body {
-    grid-template-columns: 1fr;
-  }
-
-  .discovery-tabs {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .detail-card {
+    max-height: none;
     position: static;
-    gap: 5px;
   }
-
-  .discovery-tab {
-    flex: 0 1 auto;
-    width: auto;
-    padding: 7px 10px;
-    border-left: 1px solid rgba(26,22,40,0.08);
-    border-bottom: 2px solid transparent;
-    border-radius: 10px;
-  }
-
-  .discovery-tab.is-active {
-    border-left-color: rgba(232,93,4,0.22);
-    border-bottom-color: var(--saffron);
-  }
-
-  .discovery-tab.is-active::after { display: none; }
 
   .quick-two-col {
     grid-template-columns: 1fr;
@@ -1536,12 +1515,5 @@ h3 { font-size: 1.05rem; }
     grid-template-columns: 1fr;
   }
 
-  .dress-corner-card {
-    width: 168px;
-    top: 10px;
-    right: 10px;
-    padding: 9px;
-  }
-
-  .dress-corner-visual { height: 122px; }
+  .discovery-tab-label { display: none; }
 }
