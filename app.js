@@ -696,7 +696,21 @@ const locations = [
   },
 ];
 
-const mapObject = document.getElementById("india-map-object");
+const mapColorPalette = [
+  "#f4a261", "#8ecae6", "#90be6d", "#ffafcc", "#cdb4db", "#ffd166",
+  "#06d6a0", "#f4978e", "#a0c4ff", "#bde0fe", "#fec89a", "#84a59d",
+  "#f6bd60", "#b8c0ff", "#95d5b2", "#e9c46a", "#f28482", "#52b69a",
+  "#f7b267", "#6ec6ff", "#d4a373", "#b5e48c", "#ffcad4", "#a9def9",
+  "#c3aed6", "#ffd6a5", "#80ed99", "#f1c0e8", "#72ddf7", "#f2cc8f",
+  "#98c1d9", "#bee1e6", "#b8f2e6", "#ffcb77", "#e5989b", "#7bdff2",
+];
+
+const locationColorMap = locations.reduce((accumulator, place, index) => {
+  accumulator[place.id] = mapColorPalette[index % mapColorPalette.length];
+  return accumulator;
+}, {});
+
+const mapShell = document.getElementById("india-map-shell");
 const directory = document.getElementById("state-directory");
 const searchInput = document.getElementById("state-search");
 const detailName = document.getElementById("detail-name");
@@ -721,6 +735,7 @@ const dressLink = document.getElementById("dress-link");
 
 let activeId = "maharashtra";
 let svgDocumentRef = null;
+let svgRootRef = null;
 const svgElementMap = new Map();
 const stateImageCache = new Map();
 const dressImageCache = new Map();
@@ -728,6 +743,20 @@ let activeImageRequest = 0;
 let activeDressRequest = 0;
 let overviewTypeToken = 0;
 let heroTypeToken = 0;
+
+function shiftHexColor(color, amount) {
+  const normalized = color.replace("#", "");
+  const value = Number.parseInt(normalized, 16);
+  const clamp = (channel) => Math.max(0, Math.min(255, channel));
+  const red = clamp((value >> 16) + amount);
+  const green = clamp(((value >> 8) & 0xff) + amount);
+  const blue = clamp((value & 0xff) + amount);
+  return `#${[red, green, blue].map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function getLocationMapColor(placeId) {
+  return locationColorMap[placeId] || "#b7e5fb";
+}
 
 const svgAliasMap = {
   "jammu-kashmir": ["Jammu_and_Kashmir"],
@@ -1138,19 +1167,18 @@ function applyStateImage(place, imageInfo, scenic) {
 }
 
 function renderLegend() {
-  const entries = ["north", "west", "central", "east", "south", "northeast", "islands", "union"];
+  const samples = locations.slice(0, 6);
 
-  legend.innerHTML = entries
-    .map((key) => {
-      const item = regionPalette[key];
-      return `
-        <span class="legend-chip">
-          <span class="legend-swatch" style="background:${item.color}"></span>
-          ${item.name}
-        </span>
-      `;
-    })
-    .join("");
+  legend.innerHTML = [
+    '<span class="legend-chip">Each state and UT has its own color</span>',
+    ...samples.map((place) => `
+      <span class="legend-chip">
+        <span class="legend-swatch" style="background:${getLocationMapColor(place.id)}"></span>
+        ${place.code}
+      </span>
+    `),
+    '<span class="legend-chip"><span class="legend-swatch" style="background:#17384a"></span>Selected</span>',
+  ].join("");
 }
 
 function renderLanguageLinkSet(place) {
@@ -1246,7 +1274,7 @@ async function loadDressImage(place, dress) {
 }
 
 function getMapElementsForPlace(place) {
-  if (!svgDocumentRef) return [];
+  if (!svgRootRef) return [];
 
   const aliases = svgAliasMap[place.id] || [];
   const geometryTags = new Set(["path", "polygon", "rect", "ellipse", "circle"]);
@@ -1270,8 +1298,8 @@ function getMapElementsForPlace(place) {
   }
 
   aliases.forEach((alias) => {
-    collectGeometry(svgDocumentRef.getElementById(alias));
-    svgDocumentRef
+    collectGeometry(svgRootRef.querySelector(`[id="${alias}"]`));
+    svgRootRef
       .querySelectorAll(`[id="${alias}"], [id^="${alias}."], [id*="${alias}."]`)
       .forEach((node) => collectGeometry(node));
   });
@@ -1283,27 +1311,31 @@ function refreshSvgStyles(filterIds = null) {
   if (!svgDocumentRef) return;
 
   locations.forEach((place) => {
-    const color = regionPalette[place.region].color;
     const isActive = place.id === activeId;
     const isMuted = filterIds && !filterIds.has(place.id);
     const nodes = svgElementMap.get(place.id) || [];
+    const baseColor = getLocationMapColor(place.id);
+    const activeColor = shiftHexColor(baseColor, -24);
 
     nodes.forEach((node) => {
-      node.style.fill = color;
-      node.style.stroke = isActive ? "#112f3c" : "#ffffff";
-      node.style.strokeWidth = isActive ? "3.8" : "1.7";
+      node.style.fill = isActive ? activeColor : baseColor;
+      node.style.stroke = isActive ? "#0f1d28" : "#1f2a35";
+      node.style.strokeWidth = isActive ? "3.2" : "1.4";
       node.style.opacity = isMuted ? "0.22" : "1";
       node.style.cursor = "pointer";
       node.style.pointerEvents = "visiblePainted";
       node.style.transition = "fill 180ms ease, opacity 180ms ease, stroke 180ms ease, stroke-width 180ms ease, filter 180ms ease";
-      node.style.filter = isActive ? "brightness(1.04) saturate(1.1)" : "";
+      node.style.filter = isActive ? "drop-shadow(0 0 6px rgba(31, 42, 53, 0.24))" : "";
     });
   });
 }
 
 function setupSvgMap() {
-  svgDocumentRef = mapObject.contentDocument;
-  if (!svgDocumentRef) return;
+  if (!mapShell) return;
+
+  svgDocumentRef = mapShell;
+  svgRootRef = mapShell.querySelector("svg");
+  if (!svgRootRef) return;
 
   svgElementMap.clear();
 
@@ -1315,18 +1347,35 @@ function setupSvgMap() {
       node.addEventListener("click", () => selectLocation(place.id));
       node.addEventListener("mouseenter", () => {
         if (place.id !== activeId) {
-          node.style.filter = "brightness(1.03) saturate(1.08)";
+          node.style.fill = shiftHexColor(getLocationMapColor(place.id), 18);
         }
       });
       node.addEventListener("mouseleave", () => {
         if (place.id !== activeId) {
-          node.style.filter = "";
+          node.style.fill = getLocationMapColor(place.id);
         }
       });
     });
   });
 
   refreshSvgStyles();
+}
+
+async function loadInlineMap() {
+  if (!mapShell) return;
+
+  const response = await fetch("india-location-map.svg");
+  if (!response.ok) {
+    throw new Error(`Unable to load map SVG: ${response.status}`);
+  }
+
+  mapShell.innerHTML = await response.text();
+  const injectedSvg = mapShell.querySelector("svg");
+  if (!injectedSvg) {
+    throw new Error("Inline SVG markup was not found in the map asset.");
+  }
+
+  injectedSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 }
 
 function renderDirectory() {
@@ -1438,23 +1487,21 @@ function init() {
   selectLocation(activeId);
   startHeroTyping();
 
-  if (mapObject) {
-    mapObject.addEventListener("load", () => {
-      setupSvgMap();
-      applyFilter(searchInput.value);
-      selectLocation(activeId);
-    });
-
-    if (mapObject.contentDocument) {
-      setupSvgMap();
-      applyFilter(searchInput.value);
-      selectLocation(activeId);
-    }
-  }
-
   searchInput.addEventListener("input", (event) => {
     applyFilter(event.target.value);
   });
+
+  loadInlineMap()
+    .then(() => {
+      setupSvgMap();
+      applyFilter(searchInput.value);
+      selectLocation(activeId);
+    })
+    .catch(() => {
+      if (mapShell) {
+        mapShell.textContent = "The India map could not be loaded right now.";
+      }
+    });
 }
 
 init();

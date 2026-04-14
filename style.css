@@ -312,6 +312,7 @@ h3 {
 }
 
 .map-stage {
+  position: relative;
   border-radius: 22px;
   overflow: hidden;
   background:
@@ -322,12 +323,22 @@ h3 {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
-.india-map-object {
+.india-map-shell {
   width: 100%;
   aspect-ratio: 1500 / 1614.844;
   min-height: 860px;
   display: block;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.16));
+}
+
+.india-map-shell svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.india-map-shell [id] {
+  vector-effect: non-scaling-stroke;
 }
 
 .detail-card {
@@ -734,7 +745,7 @@ h3 {
     position: static;
   }
 
-  .india-map-object {
+  .india-map-shell {
     min-height: 720px;
   }
 }
@@ -774,7 +785,7 @@ h3 {
     max-width: none;
   }
 
-  .india-map-object {
+  .india-map-shell {
     min-height: 520px;
   }
 
