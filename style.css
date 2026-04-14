@@ -618,43 +618,71 @@ h3 {
   margin-top: 8px;
 }
 
-.discovery-tabs {
+/* ── Sidebar tab layout ─────────────────────────────────── */
+.discovery-studio-body {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
+  grid-template-columns: 192px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.discovery-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 18px;
 }
 
 .discovery-tab {
   position: relative;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(31, 42, 53, 0.1);
-  background: rgba(255, 255, 255, 0.84);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(31, 42, 53, 0.09);
+  border-left: 3px solid transparent;
+  background: rgba(255, 255, 255, 0.76);
   color: var(--ink);
   text-align: left;
   font: inherit;
   cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, padding-left 160ms ease;
 }
 
 .discovery-tab:hover,
 .discovery-tab:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(13, 111, 164, 0.24);
-  box-shadow: 0 10px 22px rgba(31, 42, 53, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(13, 111, 164, 0.18);
+  border-left-color: rgba(13, 111, 164, 0.35);
+  box-shadow: 0 6px 18px rgba(31, 42, 53, 0.07);
 }
 
 .discovery-tab.is-active {
-  background: linear-gradient(135deg, rgba(13, 111, 164, 0.14), rgba(244, 154, 50, 0.18));
-  border-color: rgba(13, 111, 164, 0.28);
-  box-shadow: 0 14px 28px rgba(31, 42, 53, 0.1);
+  background: linear-gradient(135deg, rgba(13, 111, 164, 0.1), rgba(244, 154, 50, 0.08));
+  border-color: rgba(13, 111, 164, 0.22);
+  border-left: 3px solid #0d6fa4;
+  box-shadow: 0 8px 22px rgba(31, 42, 53, 0.1);
+  color: #0d4e74;
+}
+
+.discovery-tab.is-active::after {
+  content: "›";
+  position: absolute;
+  right: 10px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0d6fa4;
+  opacity: 0.7;
 }
 
 .discovery-tab-label {
   display: block;
-  font-size: 0.94rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .discovery-board {
@@ -721,10 +749,10 @@ h3 {
 }
 
 .discovery-points {
-  margin-top: 16px;
+  margin-top: 14px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .discovery-point {
@@ -1080,23 +1108,19 @@ h3 {
   .india-map-shell {
     min-height: 720px;
   }
+
+  .discovery-studio-body {
+    grid-template-columns: 160px 1fr;
+  }
 }
 
-/* ── Discovery Tab Icons ────────────────────────────────────── */
-.discovery-tab {
-  padding: 10px 12px;
-  text-align: center;
-}
-
+/* ── Discovery Tab Icon (sidebar mode — icon left) ──────────── */
 .discovery-tab-icon {
-  display: block;
-  font-size: 1.5rem;
+  font-size: 1.18rem;
   line-height: 1;
-  margin-bottom: 5px;
-}
-
-.discovery-tab-label {
-  font-size: 0.84rem;
+  flex-shrink: 0;
+  width: 26px;
+  text-align: center;
 }
 
 /* ── GI Product Tag Chips ────────────────────────────────────── */
@@ -1354,8 +1378,25 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .discovery-studio-body {
+    grid-template-columns: 1fr;
+  }
+
   .discovery-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    position: static;
+  }
+
+  .discovery-tab {
+    flex: 0 1 auto;
+    width: auto;
+    padding: 8px 11px;
+  }
+
+  .discovery-tab.is-active::after {
+    display: none;
   }
 
   .film-facts-row {
