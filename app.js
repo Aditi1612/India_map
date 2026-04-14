@@ -755,6 +755,12 @@ const dressImage = document.getElementById("dress-image");
 const dressName = document.getElementById("dress-name");
 const dressState = document.getElementById("dress-state");
 const dressLink = document.getElementById("dress-link");
+const styleGallery = document.getElementById("style-gallery");
+const soundCard = document.getElementById("sound-card");
+const soundStateTitle = document.getElementById("sound-state-title");
+const soundDescription = document.getElementById("sound-description");
+const soundToggle = document.getElementById("sound-toggle");
+const soundNote = document.getElementById("sound-note");
 
 let activeId = "maharashtra";
 let svgDocumentRef = null;
@@ -762,16 +768,24 @@ let svgRootRef = null;
 const svgElementMap = new Map();
 const stateImageCache = new Map();
 const dressImageCache = new Map();
+const styleGalleryCache = new Map();
 const knowledgeTopicCache = new Map();
 const knowledgeEntryRegistry = new Map();
 let activeImageRequest = 0;
 let activeDressRequest = 0;
 let activeKnowledgeRequest = 0;
+let activeStyleGalleryRequest = 0;
 let overviewTypeToken = 0;
 let heroTypeToken = 0;
 let activeDiscoveryCategory = "geography";
 let currentDiscoveryPlace = null;
 let knowledgeEntrySequence = 0;
+let audioContextRef = null;
+let audioMasterGain = null;
+let stateMusicTimer = null;
+let musicIsPlaying = false;
+let currentMusicPlaceId = null;
+let currentMusicStep = 0;
 
 function shiftHexColor(color, amount) {
   const normalized = color.replace("#", "");
@@ -1644,6 +1658,17 @@ const filmIndustryMap = {
   },
 };
 
+const regionalMusicProfiles = {
+  north: { label: "a mountain folk pulse with a soft drone and bright plucked notes", tempo: 76, scale: [0, 2, 5, 7, 9], tonic: 60, wave: "triangle", drum: 138 },
+  west: { label: "a festive desert-and-garba groove with hand-clap energy", tempo: 102, scale: [0, 3, 5, 7, 10], tonic: 62, wave: "sawtooth", drum: 156 },
+  central: { label: "an earthy plateau rhythm with warm drones and steady beats", tempo: 88, scale: [0, 2, 3, 7, 9], tonic: 58, wave: "triangle", drum: 128 },
+  east: { label: "a river-belt melody with gentle movement and bright accents", tempo: 90, scale: [0, 2, 4, 7, 9], tonic: 64, wave: "sine", drum: 144 },
+  south: { label: "a temple-town groove with flowing phrases and layered rhythm", tempo: 96, scale: [0, 1, 5, 7, 8], tonic: 61, wave: "triangle", drum: 148 },
+  northeast: { label: "a hill-folk pattern with airy tones and a dancing pulse", tempo: 94, scale: [0, 2, 5, 7, 10], tonic: 65, wave: "square", drum: 162 },
+  islands: { label: "a breezy island sway with light percussion and marine calm", tempo: 84, scale: [0, 4, 5, 7, 9], tonic: 67, wave: "sine", drum: 118 },
+  union: { label: "a hybrid urban folk ambience tuned for a compact state story", tempo: 92, scale: [0, 2, 4, 7, 11], tonic: 63, wave: "triangle", drum: 140 },
+};
+
 const traditionalDressMap = {
   "jammu-kashmir": { name: "Pheran", style: "robe", colors: ["#6b8ea6", "#f1e5d1", "#c55b3d"], pages: ["Pheran"] },
   ladakh: { name: "Goncha", style: "robe", colors: ["#8f3028", "#e8c16a", "#2d4d66"], pages: ["Goncha", "Pheran"] },
@@ -1799,6 +1824,274 @@ async function loadWikiImageFromCandidates(candidates, cacheMap) {
   }
 
   return null;
+}
+
+function hashString(value) {
+  return Array.from(value).reduce((accumulator, character) => {
+    return ((accumulator << 5) - accumulator + character.charCodeAt(0)) >>> 0;
+  }, 0);
+}
+
+function getPrimaryGiItem(place, preferredTypes = ["textile", "craft", "art", "agri", "food"]) {
+  const items = giProductsMap[place.id] || [];
+
+  for (const type of preferredTypes) {
+    const match = items.find((item) => item.type === type);
+    if (match) return match;
+  }
+
+  return items[0] || null;
+}
+
+function buildStyleGalleryEntries(place) {
+  const dress = getDressReference(place);
+  const scenic = getScenicReference(place);
+  const signature = getDiscoverySignature(place);
+  const defaults = getDiscoveryDefault(place);
+  const giItem = getPrimaryGiItem(place);
+
+  return [
+    {
+      kicker: "Attire",
+      title: dress.name,
+      text: `${dress.name} is one of the signature clothing styles associated with ${place.name}.`,
+      summary: `${dress.name} helps describe how people in ${place.name} express identity through drape, fabric and silhouette.`,
+      candidates: dress.pages?.length ? dress.pages : [getWikiPage(place)],
+      knowledge: {
+        label: dress.name,
+        meta: "Attire story",
+        kicker: "Style Gallery",
+        viewerTitle: `${dress.name} - ${place.name}`,
+        wikiTitle: dress.pages?.[0] || getWikiPage(place),
+        placeId: place.id,
+      },
+    },
+    {
+      kicker: "Jewelry and Craft",
+      title: giItem?.name || `${place.name} craft accents`,
+      text: giItem
+        ? `${giItem.name} adds texture to the region's styling story through material, craft or ceremonial detail.`
+        : `${place.name} mixes local craft traditions into its ceremonial styling.`,
+      summary: giItem
+        ? `${giItem.name} connects adornment, textiles and visual identity in ${place.name}.`
+        : `${place.name} carries strong visual identity through local craft and ornament traditions.`,
+      candidates: [giItem?.name, ...(dress.pages || []), getWikiPage(place)].filter(Boolean),
+      knowledge: {
+        label: giItem?.name || `${place.name} craft accents`,
+        meta: "Jewelry and craft",
+        kicker: "Style Gallery",
+        viewerTitle: `${place.name} adornment story`,
+        wikiTitle: giItem?.name || getWikiPage(place),
+        placeId: place.id,
+      },
+    },
+    {
+      kicker: "Styling Scene",
+      title: scenic.label,
+      text: `Festive styling in ${place.name} often comes alive during ${String(signature.festival || defaults.festivals).toLowerCase()}.`,
+      summary: `${scenic.label} is a visual anchor for how attire, celebration and place come together in ${place.name}.`,
+      candidates: scenic.pages?.length ? scenic.pages : [getWikiPage(place)],
+      knowledge: {
+        label: scenic.label,
+        meta: "Styling scene",
+        kicker: "Style Gallery",
+        viewerTitle: `${scenic.label} - ${place.name}`,
+        wikiTitle: scenic.pages?.[0] || getWikiPage(place),
+        placeId: place.id,
+      },
+    },
+  ];
+}
+
+function renderStyleGallery(place) {
+  if (!styleGallery) return;
+
+  const requestId = ++activeStyleGalleryRequest;
+  const entries = buildStyleGalleryEntries(place);
+
+  styleGallery.innerHTML = entries
+    .map((entry, index) => `
+      <button class="style-card" type="button" data-style-index="${index}">
+        <div class="style-card-media">
+          <img class="style-card-img" data-style-image="${index}" alt="${escapeHtml(entry.title)}">
+          <div class="style-card-overlay">
+            <span class="style-card-kicker">${escapeHtml(entry.kicker)}</span>
+            <span class="style-card-status" data-style-status="${index}">Loading a visual for ${escapeHtml(entry.title)}...</span>
+          </div>
+        </div>
+        <div class="style-card-copy">
+          <h4 class="style-card-title">${escapeHtml(entry.title)}</h4>
+          <p class="style-card-text">${escapeHtml(entry.text)}</p>
+        </div>
+      </button>
+    `)
+    .join("");
+
+  styleGallery.querySelectorAll(".style-card").forEach((card, index) => {
+    const entry = entries[index];
+    bindKnowledgeEntryToElement(card, {
+      ...entry.knowledge,
+      summary: entry.summary,
+      points: [
+        ["State", place.name],
+        ["Focus", entry.title],
+        ["Culture", place.famousFor],
+        ["Capital", place.capital],
+      ],
+      imagePage: entry.candidates[0],
+    });
+  });
+
+  entries.forEach(async (entry, index) => {
+    const imageElement = styleGallery.querySelector(`[data-style-image="${index}"]`);
+    const statusElement = styleGallery.querySelector(`[data-style-status="${index}"]`);
+    try {
+      const imageInfo = await loadWikiImageFromCandidates(entry.candidates, styleGalleryCache);
+      if (requestId !== activeStyleGalleryRequest || !imageElement || !statusElement) return;
+
+      if (imageInfo?.src) {
+        imageElement.onload = () => {
+          if (requestId === activeStyleGalleryRequest) {
+            imageElement.classList.add("is-ready");
+          }
+        };
+        imageElement.src = imageInfo.src;
+        imageElement.alt = `${entry.title} visual for ${place.name}`;
+        statusElement.textContent = imageInfo.description || `${entry.title} visual ready`;
+        return;
+      }
+
+      statusElement.textContent = `${entry.title} styling story`;
+    } catch (error) {
+      if (requestId !== activeStyleGalleryRequest || !statusElement) return;
+      statusElement.textContent = `${entry.title} styling story`;
+    }
+  });
+}
+
+function midiToFrequency(midiNote) {
+  return 440 * (2 ** ((midiNote - 69) / 12));
+}
+
+function ensureAudioEngine() {
+  if (audioContextRef) return Promise.resolve(audioContextRef);
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    return Promise.reject(new Error("AudioContext is not supported in this browser."));
+  }
+
+  audioContextRef = new AudioContextClass();
+  audioMasterGain = audioContextRef.createGain();
+  audioMasterGain.gain.value = 0.06;
+  audioMasterGain.connect(audioContextRef.destination);
+  return Promise.resolve(audioContextRef);
+}
+
+function getStateMusicProfile(place) {
+  const regionalProfile = regionalMusicProfiles[place.region] || regionalMusicProfiles.union;
+  const hash = hashString(place.id);
+  return {
+    ...regionalProfile,
+    tonic: regionalProfile.tonic + (hash % 3),
+    accentOffset: hash % regionalProfile.scale.length,
+    note: `${place.name} uses ${regionalProfile.label}. Tap play to hear a gentle loop.`,
+  };
+}
+
+function triggerTone(audioContext, profile, step) {
+  if (!audioMasterGain) return;
+
+  const now = audioContext.currentTime;
+  const noteIndex = (step + profile.accentOffset) % profile.scale.length;
+  const melodyFrequency = midiToFrequency(profile.tonic + profile.scale[noteIndex]);
+  const bassFrequency = midiToFrequency(profile.tonic - 12 + profile.scale[step % profile.scale.length]);
+
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  oscillator.type = profile.wave;
+  oscillator.frequency.setValueAtTime(melodyFrequency, now);
+  gainNode.gain.setValueAtTime(0.0001, now);
+  gainNode.gain.exponentialRampToValueAtTime(0.055, now + 0.05);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioMasterGain);
+  oscillator.start(now);
+  oscillator.stop(now + 0.45);
+
+  if (step % 2 === 0) {
+    const droneOscillator = audioContext.createOscillator();
+    const droneGain = audioContext.createGain();
+    droneOscillator.type = "sine";
+    droneOscillator.frequency.setValueAtTime(bassFrequency, now);
+    droneGain.gain.setValueAtTime(0.0001, now);
+    droneGain.gain.exponentialRampToValueAtTime(0.03, now + 0.03);
+    droneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.52);
+    droneOscillator.connect(droneGain);
+    droneGain.connect(audioMasterGain);
+    droneOscillator.start(now);
+    droneOscillator.stop(now + 0.55);
+  }
+
+  const drumOscillator = audioContext.createOscillator();
+  const drumGain = audioContext.createGain();
+  drumOscillator.type = "triangle";
+  drumOscillator.frequency.setValueAtTime(profile.drum, now);
+  drumOscillator.frequency.exponentialRampToValueAtTime(profile.drum * 0.72, now + 0.09);
+  drumGain.gain.setValueAtTime(0.0001, now);
+  drumGain.gain.exponentialRampToValueAtTime(0.04, now + 0.01);
+  drumGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  drumOscillator.connect(drumGain);
+  drumGain.connect(audioMasterGain);
+  drumOscillator.start(now);
+  drumOscillator.stop(now + 0.14);
+}
+
+function stopStateMusic() {
+  if (stateMusicTimer) {
+    window.clearInterval(stateMusicTimer);
+    stateMusicTimer = null;
+  }
+
+  musicIsPlaying = false;
+  currentMusicPlaceId = null;
+}
+
+async function startStateMusic(place) {
+  stopStateMusic();
+  const audioContext = await ensureAudioEngine();
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  const profile = getStateMusicProfile(place);
+  const stepDuration = Math.max(280, Math.round((60000 / profile.tempo) / 2));
+  musicIsPlaying = true;
+  currentMusicPlaceId = place.id;
+  currentMusicStep = 0;
+
+  triggerTone(audioContext, profile, currentMusicStep);
+  currentMusicStep += 1;
+
+  stateMusicTimer = window.setInterval(() => {
+    triggerTone(audioContext, profile, currentMusicStep);
+    currentMusicStep += 1;
+  }, stepDuration);
+}
+
+function updateSoundscapePanel(place) {
+  if (!soundCard || !soundStateTitle || !soundDescription || !soundToggle || !soundNote) return;
+
+  const profile = getStateMusicProfile(place);
+  const isCurrent = musicIsPlaying && currentMusicPlaceId === place.id;
+
+  soundCard.dataset.playing = isCurrent ? "true" : "false";
+  soundStateTitle.textContent = `${place.name} soundscape`;
+  soundDescription.textContent = `A folk-inspired background loop for ${place.name}: ${profile.label}.`;
+  soundToggle.textContent = isCurrent ? "Pause soundtrack" : "Play soundtrack";
+  soundNote.textContent = isCurrent
+    ? `Now playing. The soundtrack will adapt when you switch to another state.`
+    : `Ready to play. Audio stays off until you tap the button.`;
 }
 
 async function fetchWikiTopic(pageTitle) {
@@ -2693,7 +2986,6 @@ function renderLanguageLinkSet(place) {
         kicker: "Language Rabbit Hole",
         viewerTitle: `${entry.name} in ${place.name}`,
         wikiTitle: entry.title,
-        viewerTitle: `${entry.label} - ${place.name}`,
         placeId: place.id,
         summary: `${entry.name} is part of the language story of ${place.name}. Use this on-page panel to connect language, place, and culture without leaving the explorer.`,
         points: [
@@ -2976,7 +3268,17 @@ function selectLocation(id) {
   }
 
   renderDressSpotlight(place);
+  renderStyleGallery(place);
   renderDiscoveryStudio(place);
+  updateSoundscapePanel(place);
+  if (musicIsPlaying) {
+    startStateMusic(place)
+      .then(() => updateSoundscapePanel(place))
+      .catch(() => {
+        stopStateMusic();
+        updateSoundscapePanel(place);
+      });
+  }
   openKnowledgeEntry({
     label: place.name,
     meta: "State spotlight",
@@ -3041,6 +3343,29 @@ function init() {
   searchInput.addEventListener("input", (event) => {
     applyFilter(event.target.value);
   });
+
+  if (soundToggle) {
+    soundToggle.addEventListener("click", () => {
+      const place = findPlaceById(activeId) || currentDiscoveryPlace;
+      if (!place) return;
+
+      if (musicIsPlaying && currentMusicPlaceId === place.id) {
+        stopStateMusic();
+        updateSoundscapePanel(place);
+        return;
+      }
+
+      startStateMusic(place)
+        .then(() => updateSoundscapePanel(place))
+        .catch(() => {
+          stopStateMusic();
+          if (soundNote) {
+            soundNote.textContent = "Audio could not start in this browser right now.";
+          }
+          updateSoundscapePanel(place);
+        });
+    });
+  }
 
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-knowledge-id]");
