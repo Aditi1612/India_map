@@ -706,10 +706,26 @@ const detailHighlights = document.getElementById("detail-highlights");
 const detailNeighbors = document.getElementById("detail-neighbors");
 const factsGrid = document.getElementById("facts-grid");
 const legend = document.getElementById("legend");
+const detailFunFact = document.getElementById("detail-fun-fact");
+const languageLinks = document.getElementById("language-links");
+const detailLinks = document.getElementById("detail-links");
+const detailImage = document.getElementById("detail-image");
+const detailImageStatus = document.getElementById("detail-image-status");
+const detailImageCredit = document.getElementById("detail-image-credit");
+const heroAccent = document.getElementById("hero-accent");
+const dressCard = document.getElementById("dress-corner-card");
+const dressImage = document.getElementById("dress-image");
+const dressName = document.getElementById("dress-name");
+const dressState = document.getElementById("dress-state");
+const dressLink = document.getElementById("dress-link");
 
 let activeId = "maharashtra";
 let svgDocumentRef = null;
 const svgElementMap = new Map();
+const stateImageCache = new Map();
+let activeImageRequest = 0;
+let overviewTypeToken = 0;
+let heroTypeToken = 0;
 
 const svgAliasMap = {
   "jammu-kashmir": ["Jammu_and_Kashmir"],
@@ -750,6 +766,103 @@ const svgAliasMap = {
   meghalaya: ["Meghalaya"],
 };
 
+const wikiPageMap = {
+  "jammu-kashmir": "Jammu and Kashmir (union territory)",
+  "dnh-dd": "Dadra and Nagar Haveli and Daman and Diu",
+  "andaman-nicobar": "Andaman and Nicobar Islands",
+  delhi: "Delhi",
+  odisha: "Odisha",
+  uttarakhand: "Uttarakhand",
+  puducherry: "Puducherry",
+};
+
+const languageWikiMap = {
+  Hindi: "Hindi",
+  English: "English language",
+  Punjabi: "Punjabi language",
+  Urdu: "Urdu",
+  Kashmiri: "Kashmiri language",
+  Dogri: "Dogri language",
+  Ladakhi: "Ladakhi language",
+  "Pahari varieties": "Pahari languages",
+  Haryanvi: "Haryanvi language",
+  Garhwali: "Garhwali language",
+  Kumaoni: "Kumaoni language",
+  Gujarati: "Gujarati language",
+  Marathi: "Marathi language",
+  Konkani: "Konkani language",
+  Telugu: "Telugu language",
+  Kannada: "Kannada",
+  Malayalam: "Malayalam",
+  Tamil: "Tamil language",
+  Bengali: "Bengali language",
+  Odia: "Odia language",
+  Assamese: "Assamese language",
+  Nepali: "Nepali language",
+  "Sikkimese": "Sikkimese language",
+  Lepcha: "Lepcha language",
+  Santali: "Santali language",
+  Chhattisgarhi: "Chhattisgarhi language",
+  Rajasthani: "Rajasthani languages",
+  "Rajasthani varieties": "Rajasthani languages",
+  Meitei: "Meitei language",
+  "Meitei (Manipuri)": "Meitei language",
+  Mizo: "Mizo language",
+  Kokborok: "Kokborok",
+  Khasi: "Khasi language",
+  Garo: "Garo language",
+  Jeseri: "Jeseri language",
+  French: "French language",
+  "French legacy": "French language",
+  "Naga languages": "Naga languages",
+  "indigenous languages": "Languages of India",
+};
+
+const heroPhrases = [
+  "explore every state.",
+  "zoom into every region.",
+  "watch the facts come alive.",
+];
+
+const traditionalDressMap = {
+  "jammu-kashmir": { name: "Pheran", style: "robe", colors: ["#6b8ea6", "#f1e5d1", "#c55b3d"] },
+  ladakh: { name: "Goncha", style: "robe", colors: ["#8f3028", "#e8c16a", "#2d4d66"] },
+  "himachal-pradesh": { name: "Chola Dora", style: "robe", colors: ["#57738a", "#d7c3aa", "#b23d2e"] },
+  punjab: { name: "Punjabi Suit", style: "suit", colors: ["#d65a44", "#f4d37d", "#3b6d8a"] },
+  chandigarh: { name: "Punjabi Suit", style: "suit", colors: ["#df6b52", "#f8ddb3", "#56799b"] },
+  haryana: { name: "Ghagra and Kurti", style: "skirt", colors: ["#bf4e45", "#f4c96f", "#466e58"] },
+  delhi: { name: "Kurta Set", style: "suit", colors: ["#587899", "#f3dcb2", "#c45f3f"] },
+  uttarakhand: { name: "Ghagra Pichora", style: "skirt", colors: ["#d3a12d", "#c8453d", "#f6e6b6"] },
+  "uttar-pradesh": { name: "Banarasi Saree", style: "sari", colors: ["#b2384c", "#d8a33c", "#f0dfc0"] },
+  rajasthan: { name: "Ghagra Choli", style: "skirt", colors: ["#cc4a35", "#f4b73d", "#2d7987"] },
+  gujarat: { name: "Chaniya Choli", style: "skirt", colors: ["#1e8a7d", "#e55d3d", "#f2cf5d"] },
+  "dnh-dd": { name: "Tribal Folk Attire", style: "wrap", colors: ["#6b8a57", "#e6c98d", "#8c4c38"] },
+  "madhya-pradesh": { name: "Lugda Style", style: "sari", colors: ["#5f7ea1", "#d15c49", "#efd8a6"] },
+  chhattisgarh: { name: "Kosa Saree", style: "sari", colors: ["#9d4637", "#d6ac47", "#f0e0bc"] },
+  bihar: { name: "Tussar Saree", style: "sari", colors: ["#8a4b62", "#e7c98a", "#4e697f"] },
+  jharkhand: { name: "Panchi Parhan", style: "wrap", colors: ["#cf5e3a", "#ead7b5", "#325f76"] },
+  sikkim: { name: "Bakhu", style: "robe", colors: ["#495f8b", "#d2b46f", "#f2e2c6"] },
+  "west-bengal": { name: "Bengali Saree", style: "sari", colors: ["#d43f4d", "#f3efe4", "#caa54a"] },
+  odisha: { name: "Sambalpuri Saree", style: "sari", colors: ["#9a3046", "#f2d0a0", "#355f7c"] },
+  maharashtra: { name: "Nauvari Saree", style: "sari", colors: ["#267a53", "#e5b23a", "#b2443e"] },
+  goa: { name: "Kunbi Saree", style: "sari", colors: ["#b64239", "#e79e41", "#2a6c7f"] },
+  telangana: { name: "Pochampally Saree", style: "sari", colors: ["#8a2f58", "#e9c84a", "#44648c"] },
+  "andhra-pradesh": { name: "Langa Voni", style: "skirt", colors: ["#c9444f", "#efbf54", "#306d91"] },
+  karnataka: { name: "Ilkal Saree", style: "sari", colors: ["#bf3d2d", "#254b83", "#efcf68"] },
+  kerala: { name: "Kasavu Saree", style: "sari", colors: ["#f1ead8", "#c9a43c", "#7e9e8f"] },
+  "tamil-nadu": { name: "Kanchipuram Saree", style: "sari", colors: ["#a02f4a", "#d7a53e", "#f0dbc4"] },
+  puducherry: { name: "Tamil-French Heritage Attire", style: "sari", colors: ["#456e98", "#f0d8b6", "#c85a42"] },
+  lakshadweep: { name: "Island Ceremonial Dress", style: "wrap", colors: ["#2b7d86", "#f0e0bc", "#4ea96d"] },
+  "andaman-nicobar": { name: "Island Tribal Attire", style: "wrap", colors: ["#2e6e7d", "#d8b984", "#c15d42"] },
+  assam: { name: "Mekhela Sador", style: "sari", colors: ["#cf5346", "#f2e5c7", "#c89a43"] },
+  "arunachal-pradesh": { name: "Gale Wrap", style: "wrap", colors: ["#4a6a91", "#d7a547", "#b1453b"] },
+  nagaland: { name: "Naga Shawl Attire", style: "robe", colors: ["#c53d36", "#111111", "#f2efe8"] },
+  manipur: { name: "Phanek and Innaphi", style: "skirt", colors: ["#a3487d", "#f0d6b7", "#446b91"] },
+  mizoram: { name: "Puan", style: "wrap", colors: ["#bd4a38", "#f2e7d0", "#2d6172"] },
+  tripura: { name: "Rignai", style: "skirt", colors: ["#cf613f", "#f1d39c", "#486a74"] },
+  meghalaya: { name: "Jainsem", style: "robe", colors: ["#bf8d2d", "#f0e6cc", "#8c3f4b"] },
+};
+
 function factCard(label, value) {
   return `
     <article class="fact-card">
@@ -757,6 +870,192 @@ function factCard(label, value) {
       <span class="fact-value">${value}</span>
     </article>
   `;
+}
+
+function wikiUrl(title) {
+  return `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`;
+}
+
+function searchUrl(query) {
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+function createDressSvg(dress) {
+  const [primary, secondary, accent] = dress.colors;
+  const silhouette = {
+    sari: `
+      <path d="M37 58c5-7 13-11 23-11s18 4 23 11v9c0 6-2 13-5 18l-6 9 8 33H40l8-33-6-9c-3-5-5-12-5-18z" fill="${primary}"/>
+      <path d="M58 57c10 5 15 14 18 25l-16 3c-2-8-5-14-10-19z" fill="${accent}"/>
+      <path d="M49 92h22l5 28H44z" fill="${secondary}"/>
+    `,
+    skirt: `
+      <path d="M36 60c6-8 15-13 24-13 10 0 18 5 24 13l-5 24H41z" fill="${secondary}"/>
+      <path d="M46 84h28l10 40H36z" fill="${primary}"/>
+      <path d="M48 57h24v15H48z" fill="${accent}"/>
+    `,
+    robe: `
+      <path d="M41 54c5-5 11-8 19-8s14 3 19 8l4 69H37z" fill="${primary}"/>
+      <path d="M60 47c7 4 11 10 13 18l-13 8-13-8c2-8 6-14 13-18z" fill="${accent}"/>
+      <path d="M51 73h18v50H51z" fill="${secondary}"/>
+    `,
+    suit: `
+      <path d="M42 58c5-7 11-11 18-11 7 0 13 4 18 11l3 27H39z" fill="${primary}"/>
+      <rect x="44" y="85" width="32" height="37" rx="8" fill="${secondary}"/>
+      <path d="M50 57h20l-4 12H54z" fill="${accent}"/>
+    `,
+    wrap: `
+      <path d="M40 60c5-8 12-13 20-13s15 5 20 13l1 21H39z" fill="${secondary}"/>
+      <path d="M42 82h36l5 40H37z" fill="${primary}"/>
+      <path d="M36 68 83 84 76 95 39 82z" fill="${accent}" opacity="0.9"/>
+    `,
+  }[dress.style] || "";
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${secondary}" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="${accent}" stop-opacity="0.18"/>
+        </linearGradient>
+      </defs>
+      <rect width="120" height="150" rx="22" fill="url(#bg)"/>
+      <circle cx="60" cy="34" r="12" fill="#f4c8a8"/>
+      <path d="M47 29c2-9 10-14 13-14 7 0 13 6 13 14-6-3-19-3-26 0z" fill="#2d241f"/>
+      ${silhouette}
+      <circle cx="60" cy="133" r="6" fill="${accent}" opacity="0.55"/>
+    </svg>
+  `.trim();
+}
+
+function dressSvgUrl(dress) {
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(createDressSvg(dress))}`;
+}
+
+function normalizeLanguageChunks(languageText) {
+  return languageText
+    .replace(/\band\b/gi, ",")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      if (item === "many indigenous languages") return "indigenous languages";
+      return item;
+    })
+    .filter((item) => item !== "regional languages");
+}
+
+function renderKnowledgeLink({ label, meta, url }) {
+  return `
+    <a class="knowledge-link" href="${url}" target="_blank" rel="noreferrer">
+      <span class="knowledge-link-label">${label}</span>
+      <span class="knowledge-link-meta">${meta}</span>
+    </a>
+  `;
+}
+
+function typeText(element, text, speed = 18, tokenKey = "overview") {
+  const token = Date.now() + Math.random();
+
+  if (tokenKey === "overview") {
+    overviewTypeToken = token;
+  } else {
+    heroTypeToken = token;
+  }
+
+  element.textContent = "";
+  let index = 0;
+
+  function step() {
+    const currentToken = tokenKey === "overview" ? overviewTypeToken : heroTypeToken;
+    if (currentToken !== token) return;
+
+    element.textContent = text.slice(0, index);
+    index += 1;
+
+    if (index <= text.length) {
+      window.setTimeout(step, speed);
+    }
+  }
+
+  step();
+}
+
+function startHeroTyping() {
+  if (!heroAccent) return;
+
+  let phraseIndex = 0;
+
+  function cycle() {
+    typeText(heroAccent, heroPhrases[phraseIndex], 48, "hero");
+    phraseIndex = (phraseIndex + 1) % heroPhrases.length;
+    window.setTimeout(cycle, 3400);
+  }
+
+  cycle();
+}
+
+function getWikiPage(place) {
+  return wikiPageMap[place.id] || place.name;
+}
+
+async function loadStateImage(place) {
+  if (!detailImage || !detailImageStatus || !detailImageCredit) return;
+
+  const requestId = ++activeImageRequest;
+  const pageTitle = getWikiPage(place);
+  detailImage.classList.remove("is-ready");
+  detailImage.removeAttribute("src");
+  detailImage.alt = `${place.name} representative image`;
+  detailImageStatus.textContent = `Loading image for ${place.name}...`;
+  detailImageCredit.textContent = "";
+
+  if (stateImageCache.has(pageTitle)) {
+    const cached = stateImageCache.get(pageTitle);
+    if (requestId !== activeImageRequest) return;
+    applyStateImage(place, cached);
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`);
+    if (!response.ok) throw new Error(`Image request failed: ${response.status}`);
+    const data = await response.json();
+
+    const imageInfo = {
+      src: data.originalimage?.source || data.thumbnail?.source || "",
+      description: data.description || "",
+      title: data.title || place.name,
+    };
+
+    stateImageCache.set(pageTitle, imageInfo);
+
+    if (requestId !== activeImageRequest) return;
+    applyStateImage(place, imageInfo);
+  } catch (error) {
+    if (requestId !== activeImageRequest) return;
+    detailImageStatus.textContent = `${place.name} selected. Image preview is not available right now.`;
+    detailImageCredit.textContent = "State details are still available below.";
+  }
+}
+
+function applyStateImage(place, imageInfo) {
+  if (!detailImage || !detailImageStatus || !detailImageCredit) return;
+
+  if (!imageInfo.src) {
+    detailImageStatus.textContent = `${place.name} selected. Image preview is not available right now.`;
+    detailImageCredit.textContent = "State details are still available below.";
+    return;
+  }
+
+  detailImage.onload = () => {
+    detailImage.classList.add("is-ready");
+  };
+  detailImage.src = imageInfo.src;
+  detailImage.alt = `${place.name} representative image`;
+  detailImageStatus.textContent = imageInfo.description
+    ? `${place.name} - ${imageInfo.description}`
+    : `${place.name} image loaded`;
+  detailImageCredit.textContent = `Image via Wikipedia summary for ${imageInfo.title}.`;
 }
 
 function renderLegend() {
@@ -773,6 +1072,80 @@ function renderLegend() {
       `;
     })
     .join("");
+}
+
+function renderLanguageLinkSet(place) {
+  const seen = new Set();
+  const languages = normalizeLanguageChunks(place.languages)
+    .map((name) => {
+      const title = languageWikiMap[name] || languageWikiMap[name.replace(/\s*\(.+\)\s*/g, "").trim()] || `${name}`;
+      return { name, title };
+    })
+    .filter((entry) => {
+      const key = entry.title.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+  languageLinks.innerHTML = languages
+    .map((entry) =>
+      renderKnowledgeLink({
+        label: entry.name,
+        meta: "Language page",
+        url: wikiUrl(entry.title),
+      }),
+    )
+    .join("");
+}
+
+function renderDetailLinkSet(place) {
+  const stateTitle = getWikiPage(place);
+  const capitalTitle = place.capital.includes("(") ? place.majorCity : place.capital;
+  const links = [
+    {
+      label: `${place.name}`,
+      meta: "State or UT overview",
+      url: wikiUrl(stateTitle),
+    },
+    {
+      label: `${capitalTitle}`,
+      meta: "Capital details",
+      url: wikiUrl(capitalTitle),
+    },
+    {
+      label: `${place.majorCity}`,
+      meta: "Major city page",
+      url: wikiUrl(place.majorCity),
+    },
+  ];
+
+  detailLinks.innerHTML = links
+    .map((entry) => renderKnowledgeLink(entry))
+    .join("");
+}
+
+function renderDressSpotlight(place) {
+  if (!dressImage || !dressName || !dressLink || !dressState || !dressCard) return;
+
+  const dress = traditionalDressMap[place.id] || {
+    name: "Traditional Dress",
+    style: "sari",
+    colors: ["#b44943", "#f1d8b5", "#406b92"],
+  };
+
+  dressCard.style.setProperty("--dress-primary", dress.colors[0]);
+  dressCard.style.setProperty("--dress-secondary", dress.colors[1]);
+  dressCard.style.setProperty("--dress-accent", dress.colors[2]);
+  dressCard.classList.remove("is-refreshing");
+  void dressCard.offsetWidth;
+  dressCard.classList.add("is-refreshing");
+  dressImage.src = dressSvgUrl(dress);
+  dressImage.alt = `${dress.name} inspired illustration for ${place.name}`;
+  dressName.textContent = dress.name;
+  dressState.textContent = `${place.name} traditional style in a playful animated spotlight.`;
+  dressLink.href = searchUrl(`traditional dress of ${place.name} ${dress.name}`);
+  dressLink.textContent = `About ${dress.name}`;
 }
 
 function getMapElementsForPlace(place) {
@@ -876,7 +1249,10 @@ function selectLocation(id) {
   detailType.textContent = `${place.type} | ${regionPalette[place.region].name}`;
   detailType.style.background = `${color}18`;
   detailType.style.color = color;
-  detailOverview.textContent = place.overview;
+  typeText(detailOverview, place.overview, 14, "overview");
+  if (detailFunFact) {
+    detailFunFact.textContent = `Did you know? ${place.name} is especially known for ${place.famousFor.toLowerCase()}.`;
+  }
   detailNeighbors.textContent = place.neighbors;
 
   factsGrid.innerHTML = [
@@ -886,17 +1262,31 @@ function selectLocation(id) {
     factCard("Current status since", place.formed),
     factCard("Known for", place.famousFor),
     factCard("Map code", place.code),
-  ].join("");
+  ]
+    .map((card, index) => card.replace('<article class="fact-card">', `<article class="fact-card" style="animation-delay:${index * 70}ms">`))
+    .join("");
 
   detailHighlights.innerHTML = place.highlights
     .map((item) => `<span class="chip">${item}</span>`)
     .join("");
+
+  if (languageLinks) {
+    renderLanguageLinkSet(place);
+  }
+
+  if (detailLinks) {
+    renderDetailLinkSet(place);
+  }
+
+  renderDressSpotlight(place);
 
   refreshSvgStyles(searchInput.value.trim() ? new Set(getMatches(searchInput.value).map((entry) => entry.id)) : null);
 
   directory.querySelectorAll(".directory-btn").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.id === id);
   });
+
+  loadStateImage(place);
 }
 
 function getMatches(query) {
@@ -932,6 +1322,7 @@ function init() {
   renderDirectory();
   updateStats();
   selectLocation(activeId);
+  startHeroTyping();
 
   if (mapObject) {
     mapObject.addEventListener("load", () => {

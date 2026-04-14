@@ -16,7 +16,7 @@
   <header class="hero">
     <div class="hero-copy">
       <p class="eyebrow">Interactive Atlas</p>
-      <h1>Click the India map and explore every state.</h1>
+      <h1><span class="headline-static">Click the India map and</span> <span class="headline-accent" id="hero-accent">explore every state.</span></h1>
       <p class="hero-text">
         This page gives you a fast, visual way to browse all 28 states and 8 union territories.
         Select any region on the map to see its capital, languages, highlights, neighbours, and a
@@ -36,6 +36,12 @@
           <span class="stat-number" id="stats-uts">8</span>
           <span class="stat-label">Union territories</span>
         </article>
+      </div>
+
+      <div class="hero-pills">
+        <span class="hero-pill">Animated Detail Cards</span>
+        <span class="hero-pill">Live State Images</span>
+        <span class="hero-pill">Search + Click Explorer</span>
       </div>
     </div>
 
@@ -98,6 +104,31 @@
           <span class="detail-region-badge" id="detail-type">Choose a region</span>
         </div>
 
+        <section class="detail-media-card">
+          <div class="detail-image-shell">
+            <img
+              id="detail-image"
+              class="detail-image"
+              alt="Selected state or union territory"
+            >
+            <aside class="dress-corner-card" id="dress-corner-card">
+              <div class="dress-corner-visual">
+                <img id="dress-image" class="dress-image" alt="Traditional dress illustration">
+              </div>
+              <div class="dress-corner-copy">
+                <span class="dress-corner-label">Traditional Dress</span>
+                <strong id="dress-name">Select a state</strong>
+                <span class="dress-corner-state" id="dress-state">Choose a region to preview its outfit style.</span>
+                <a id="dress-link" class="dress-link" href="#" target="_blank" rel="noreferrer">Learn more</a>
+              </div>
+            </aside>
+            <div class="detail-image-overlay">
+              <span class="detail-image-status" id="detail-image-status">Select a region to load its image.</span>
+              <span class="detail-image-credit" id="detail-image-credit"></span>
+            </div>
+          </div>
+        </section>
+
         <p class="detail-overview" id="detail-overview">
           Select a state or union territory from the map to load its full details here.
         </p>
@@ -107,6 +138,21 @@
         <section class="detail-section">
           <h3>Highlights</h3>
           <div class="chip-row" id="detail-highlights"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Did You Know?</h3>
+          <p class="detail-fun-fact" id="detail-fun-fact">Pick a region to unlock a fun knowledge nugget.</p>
+        </section>
+
+        <section class="detail-section">
+          <h3>Language Rabbit Holes</h3>
+          <div class="knowledge-links" id="language-links"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Deep Dive Links</h3>
+          <div class="knowledge-links" id="detail-links"></div>
         </section>
 
         <section class="detail-section">
