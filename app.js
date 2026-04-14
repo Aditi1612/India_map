@@ -723,7 +723,9 @@ let activeId = "maharashtra";
 let svgDocumentRef = null;
 const svgElementMap = new Map();
 const stateImageCache = new Map();
+const dressImageCache = new Map();
 let activeImageRequest = 0;
+let activeDressRequest = 0;
 let overviewTypeToken = 0;
 let heroTypeToken = 0;
 
@@ -825,42 +827,81 @@ const heroPhrases = [
 ];
 
 const traditionalDressMap = {
-  "jammu-kashmir": { name: "Pheran", style: "robe", colors: ["#6b8ea6", "#f1e5d1", "#c55b3d"] },
-  ladakh: { name: "Goncha", style: "robe", colors: ["#8f3028", "#e8c16a", "#2d4d66"] },
-  "himachal-pradesh": { name: "Chola Dora", style: "robe", colors: ["#57738a", "#d7c3aa", "#b23d2e"] },
-  punjab: { name: "Punjabi Suit", style: "suit", colors: ["#d65a44", "#f4d37d", "#3b6d8a"] },
-  chandigarh: { name: "Punjabi Suit", style: "suit", colors: ["#df6b52", "#f8ddb3", "#56799b"] },
-  haryana: { name: "Ghagra and Kurti", style: "skirt", colors: ["#bf4e45", "#f4c96f", "#466e58"] },
-  delhi: { name: "Kurta Set", style: "suit", colors: ["#587899", "#f3dcb2", "#c45f3f"] },
-  uttarakhand: { name: "Ghagra Pichora", style: "skirt", colors: ["#d3a12d", "#c8453d", "#f6e6b6"] },
-  "uttar-pradesh": { name: "Banarasi Saree", style: "sari", colors: ["#b2384c", "#d8a33c", "#f0dfc0"] },
-  rajasthan: { name: "Ghagra Choli", style: "skirt", colors: ["#cc4a35", "#f4b73d", "#2d7987"] },
-  gujarat: { name: "Chaniya Choli", style: "skirt", colors: ["#1e8a7d", "#e55d3d", "#f2cf5d"] },
-  "dnh-dd": { name: "Tribal Folk Attire", style: "wrap", colors: ["#6b8a57", "#e6c98d", "#8c4c38"] },
-  "madhya-pradesh": { name: "Lugda Style", style: "sari", colors: ["#5f7ea1", "#d15c49", "#efd8a6"] },
-  chhattisgarh: { name: "Kosa Saree", style: "sari", colors: ["#9d4637", "#d6ac47", "#f0e0bc"] },
-  bihar: { name: "Tussar Saree", style: "sari", colors: ["#8a4b62", "#e7c98a", "#4e697f"] },
-  jharkhand: { name: "Panchi Parhan", style: "wrap", colors: ["#cf5e3a", "#ead7b5", "#325f76"] },
-  sikkim: { name: "Bakhu", style: "robe", colors: ["#495f8b", "#d2b46f", "#f2e2c6"] },
-  "west-bengal": { name: "Bengali Saree", style: "sari", colors: ["#d43f4d", "#f3efe4", "#caa54a"] },
-  odisha: { name: "Sambalpuri Saree", style: "sari", colors: ["#9a3046", "#f2d0a0", "#355f7c"] },
-  maharashtra: { name: "Nauvari Saree", style: "sari", colors: ["#267a53", "#e5b23a", "#b2443e"] },
-  goa: { name: "Kunbi Saree", style: "sari", colors: ["#b64239", "#e79e41", "#2a6c7f"] },
-  telangana: { name: "Pochampally Saree", style: "sari", colors: ["#8a2f58", "#e9c84a", "#44648c"] },
-  "andhra-pradesh": { name: "Langa Voni", style: "skirt", colors: ["#c9444f", "#efbf54", "#306d91"] },
-  karnataka: { name: "Ilkal Saree", style: "sari", colors: ["#bf3d2d", "#254b83", "#efcf68"] },
-  kerala: { name: "Kasavu Saree", style: "sari", colors: ["#f1ead8", "#c9a43c", "#7e9e8f"] },
-  "tamil-nadu": { name: "Kanchipuram Saree", style: "sari", colors: ["#a02f4a", "#d7a53e", "#f0dbc4"] },
-  puducherry: { name: "Tamil-French Heritage Attire", style: "sari", colors: ["#456e98", "#f0d8b6", "#c85a42"] },
-  lakshadweep: { name: "Island Ceremonial Dress", style: "wrap", colors: ["#2b7d86", "#f0e0bc", "#4ea96d"] },
-  "andaman-nicobar": { name: "Island Tribal Attire", style: "wrap", colors: ["#2e6e7d", "#d8b984", "#c15d42"] },
-  assam: { name: "Mekhela Sador", style: "sari", colors: ["#cf5346", "#f2e5c7", "#c89a43"] },
-  "arunachal-pradesh": { name: "Gale Wrap", style: "wrap", colors: ["#4a6a91", "#d7a547", "#b1453b"] },
-  nagaland: { name: "Naga Shawl Attire", style: "robe", colors: ["#c53d36", "#111111", "#f2efe8"] },
-  manipur: { name: "Phanek and Innaphi", style: "skirt", colors: ["#a3487d", "#f0d6b7", "#446b91"] },
-  mizoram: { name: "Puan", style: "wrap", colors: ["#bd4a38", "#f2e7d0", "#2d6172"] },
-  tripura: { name: "Rignai", style: "skirt", colors: ["#cf613f", "#f1d39c", "#486a74"] },
-  meghalaya: { name: "Jainsem", style: "robe", colors: ["#bf8d2d", "#f0e6cc", "#8c3f4b"] },
+  "jammu-kashmir": { name: "Pheran", style: "robe", colors: ["#6b8ea6", "#f1e5d1", "#c55b3d"], pages: ["Pheran"] },
+  ladakh: { name: "Goncha", style: "robe", colors: ["#8f3028", "#e8c16a", "#2d4d66"], pages: ["Goncha", "Pheran"] },
+  "himachal-pradesh": { name: "Chola Dora", style: "robe", colors: ["#57738a", "#d7c3aa", "#b23d2e"], pages: ["Pattu", "Pheran"] },
+  punjab: { name: "Punjabi Suit", style: "suit", colors: ["#d65a44", "#f4d37d", "#3b6d8a"], pages: ["Shalwar kameez"] },
+  chandigarh: { name: "Punjabi Suit", style: "suit", colors: ["#df6b52", "#f8ddb3", "#56799b"], pages: ["Shalwar kameez"] },
+  haryana: { name: "Ghagra and Kurti", style: "skirt", colors: ["#bf4e45", "#f4c96f", "#466e58"], pages: ["Ghagra choli"] },
+  delhi: { name: "Kurta Set", style: "suit", colors: ["#587899", "#f3dcb2", "#c45f3f"], pages: ["Kurta"] },
+  uttarakhand: { name: "Ghagra Pichora", style: "skirt", colors: ["#d3a12d", "#c8453d", "#f6e6b6"], pages: ["Pichora", "Ghagra choli"] },
+  "uttar-pradesh": { name: "Banarasi Saree", style: "sari", colors: ["#b2384c", "#d8a33c", "#f0dfc0"], pages: ["Banarasi saree", "Sari"] },
+  rajasthan: { name: "Ghagra Choli", style: "skirt", colors: ["#cc4a35", "#f4b73d", "#2d7987"], pages: ["Ghagra choli"] },
+  gujarat: { name: "Chaniya Choli", style: "skirt", colors: ["#1e8a7d", "#e55d3d", "#f2cf5d"], pages: ["Chaniya choli", "Ghagra choli"] },
+  "dnh-dd": { name: "Tribal Folk Attire", style: "wrap", colors: ["#6b8a57", "#e6c98d", "#8c4c38"], pages: ["Sari"] },
+  "madhya-pradesh": { name: "Lugda Style", style: "sari", colors: ["#5f7ea1", "#d15c49", "#efd8a6"], pages: ["Sari"] },
+  chhattisgarh: { name: "Kosa Saree", style: "sari", colors: ["#9d4637", "#d6ac47", "#f0e0bc"], pages: ["Kosa silk", "Sari"] },
+  bihar: { name: "Tussar Saree", style: "sari", colors: ["#8a4b62", "#e7c98a", "#4e697f"], pages: ["Tussar silk", "Sari"] },
+  jharkhand: { name: "Panchi Parhan", style: "wrap", colors: ["#cf5e3a", "#ead7b5", "#325f76"], pages: ["Sari"] },
+  sikkim: { name: "Bakhu", style: "robe", colors: ["#495f8b", "#d2b46f", "#f2e2c6"], pages: ["Kho (garment)", "Bakhu"] },
+  "west-bengal": { name: "Bengali Saree", style: "sari", colors: ["#d43f4d", "#f3efe4", "#caa54a"], pages: ["Tant sari", "Sari"] },
+  odisha: { name: "Sambalpuri Saree", style: "sari", colors: ["#9a3046", "#f2d0a0", "#355f7c"], pages: ["Sambalpuri sari", "Sari"] },
+  maharashtra: { name: "Nauvari Saree", style: "sari", colors: ["#267a53", "#e5b23a", "#b2443e"], pages: ["Nauvari"] },
+  goa: { name: "Kunbi Saree", style: "sari", colors: ["#b64239", "#e79e41", "#2a6c7f"], pages: ["Kunbi"] },
+  telangana: { name: "Pochampally Saree", style: "sari", colors: ["#8a2f58", "#e9c84a", "#44648c"], pages: ["Pochampally saree", "Sari"] },
+  "andhra-pradesh": { name: "Langa Voni", style: "skirt", colors: ["#c9444f", "#efbf54", "#306d91"], pages: ["Langa voni", "Sari"] },
+  karnataka: { name: "Ilkal Saree", style: "sari", colors: ["#bf3d2d", "#254b83", "#efcf68"], pages: ["Ilkal saree", "Sari"] },
+  kerala: { name: "Kasavu Saree", style: "sari", colors: ["#f1ead8", "#c9a43c", "#7e9e8f"], pages: ["Kasavu saree", "Mundum Neriyathum"] },
+  "tamil-nadu": { name: "Kanchipuram Saree", style: "sari", colors: ["#a02f4a", "#d7a53e", "#f0dbc4"], pages: ["Kanchipuram sari", "Sari"] },
+  puducherry: { name: "Tamil-French Heritage Attire", style: "sari", colors: ["#456e98", "#f0d8b6", "#c85a42"], pages: ["Kanchipuram sari", "Sari"] },
+  lakshadweep: { name: "Island Ceremonial Dress", style: "wrap", colors: ["#2b7d86", "#f0e0bc", "#4ea96d"], pages: ["Mundu", "Sari"] },
+  "andaman-nicobar": { name: "Island Tribal Attire", style: "wrap", colors: ["#2e6e7d", "#d8b984", "#c15d42"], pages: ["Nicobarese people", "Sari"] },
+  assam: { name: "Mekhela Sador", style: "sari", colors: ["#cf5346", "#f2e5c7", "#c89a43"], pages: ["Mekhela chador"] },
+  "arunachal-pradesh": { name: "Gale Wrap", style: "wrap", colors: ["#4a6a91", "#d7a547", "#b1453b"], pages: ["Gale (garment)", "Arunachal Pradesh"] },
+  nagaland: { name: "Naga Shawl Attire", style: "robe", colors: ["#c53d36", "#111111", "#f2efe8"], pages: ["Naga shawl", "Nagaland"] },
+  manipur: { name: "Phanek and Innaphi", style: "skirt", colors: ["#a3487d", "#f0d6b7", "#446b91"], pages: ["Phanek"] },
+  mizoram: { name: "Puan", style: "wrap", colors: ["#bd4a38", "#f2e7d0", "#2d6172"], pages: ["Puan"] },
+  tripura: { name: "Rignai", style: "skirt", colors: ["#cf613f", "#f1d39c", "#486a74"], pages: ["Rignai"] },
+  meghalaya: { name: "Jainsem", style: "robe", colors: ["#bf8d2d", "#f0e6cc", "#8c3f4b"], pages: ["Jainsem"] },
+};
+
+const scenicBackdropMap = {
+  "jammu-kashmir": { label: "Dal Lake", pages: ["Dal Lake", "Jammu and Kashmir (union territory)"] },
+  ladakh: { label: "Thiksey Monastery", pages: ["Thiksey Monastery", "Ladakh"] },
+  "himachal-pradesh": { label: "Hadimba Devi Temple", pages: ["Hadimba Devi Temple", "Himachal Pradesh"] },
+  punjab: { label: "Golden Temple", pages: ["Golden Temple", "Punjab, India"] },
+  chandigarh: { label: "Rock Garden", pages: ["Rock Garden of Chandigarh", "Chandigarh"] },
+  haryana: { label: "Brahma Sarovar", pages: ["Brahma Sarovar", "Haryana"] },
+  delhi: { label: "Humayun's Tomb", pages: ["Humayun's Tomb", "Delhi"] },
+  uttarakhand: { label: "Kedarnath Temple", pages: ["Kedarnath Temple", "Uttarakhand"] },
+  "uttar-pradesh": { label: "Taj Mahal", pages: ["Taj Mahal", "Uttar Pradesh"] },
+  rajasthan: { label: "Hawa Mahal", pages: ["Hawa Mahal", "Rajasthan"] },
+  gujarat: { label: "Rani ki Vav", pages: ["Rani ki vav", "Gujarat"] },
+  "dnh-dd": { label: "Diu Fort", pages: ["Diu Fort", "Dadra and Nagar Haveli and Daman and Diu"] },
+  "madhya-pradesh": { label: "Khajuraho Temples", pages: ["Khajuraho Group of Monuments", "Madhya Pradesh"] },
+  chhattisgarh: { label: "Bhoramdeo Temple", pages: ["Bhoramdeo Temple", "Chhattisgarh"] },
+  bihar: { label: "Mahabodhi Temple", pages: ["Mahabodhi Temple", "Bihar"] },
+  jharkhand: { label: "Baidyanath Temple", pages: ["Baidyanath Temple, Deoghar", "Jharkhand"] },
+  sikkim: { label: "Rumtek Monastery", pages: ["Rumtek Monastery", "Sikkim"] },
+  "west-bengal": { label: "Victoria Memorial", pages: ["Victoria Memorial, Kolkata", "West Bengal"] },
+  odisha: { label: "Konark Sun Temple", pages: ["Konark Sun Temple", "Odisha"] },
+  maharashtra: { label: "Gateway of India", pages: ["Gateway of India", "Maharashtra"] },
+  goa: { label: "Basilica of Bom Jesus", pages: ["Basilica of Bom Jesus", "Goa"] },
+  telangana: { label: "Charminar", pages: ["Charminar", "Telangana"] },
+  "andhra-pradesh": { label: "Tirumala Temple", pages: ["Tirumala Venkateswara Temple", "Andhra Pradesh"] },
+  karnataka: { label: "Mysore Palace", pages: ["Mysore Palace", "Karnataka"] },
+  kerala: { label: "Padmanabhaswamy Temple", pages: ["Padmanabhaswamy Temple", "Kerala"] },
+  "tamil-nadu": { label: "Meenakshi Temple", pages: ["Meenakshi Temple", "Tamil Nadu"] },
+  puducherry: { label: "Sri Aurobindo Ashram", pages: ["Sri Aurobindo Ashram", "Puducherry"] },
+  lakshadweep: { label: "Kavaratti Lagoon", pages: ["Kavaratti", "Lakshadweep"] },
+  "andaman-nicobar": { label: "Cellular Jail", pages: ["Cellular Jail", "Andaman and Nicobar Islands"] },
+  assam: { label: "Kamakhya Temple", pages: ["Kamakhya Temple", "Assam"] },
+  "arunachal-pradesh": { label: "Tawang Monastery", pages: ["Tawang Monastery", "Arunachal Pradesh"] },
+  nagaland: { label: "Kisama Heritage Village", pages: ["Kisama Heritage Village", "Nagaland"] },
+  manipur: { label: "Loktak Lake", pages: ["Loktak Lake", "Manipur"] },
+  mizoram: { label: "Solomon's Temple", pages: ["Solomon's Temple, Aizawl", "Mizoram"] },
+  tripura: { label: "Neermahal", pages: ["Neermahal", "Tripura"] },
+  meghalaya: { label: "Living Root Bridge", pages: ["Living root bridge", "Meghalaya"] },
 };
 
 function factCard(label, value) {
@@ -878,6 +919,59 @@ function wikiUrl(title) {
 
 function searchUrl(query) {
   return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+function getScenicReference(place) {
+  return scenicBackdropMap[place.id] || {
+    label: place.name,
+    pages: [getWikiPage(place)],
+  };
+}
+
+function getDressReference(place) {
+  return traditionalDressMap[place.id] || {
+    name: "Traditional Dress",
+    style: "sari",
+    colors: ["#b44943", "#f1d8b5", "#406b92"],
+    pages: [place.name],
+  };
+}
+
+async function fetchWikiSummary(pageTitle, cacheMap) {
+  if (!pageTitle) return null;
+  if (cacheMap.has(pageTitle)) {
+    return cacheMap.get(pageTitle);
+  }
+
+  const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`);
+  if (!response.ok) {
+    throw new Error(`Image request failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const imageInfo = {
+    src: data.originalimage?.source || data.thumbnail?.source || "",
+    description: data.description || "",
+    title: data.title || pageTitle,
+  };
+
+  cacheMap.set(pageTitle, imageInfo);
+  return imageInfo;
+}
+
+async function loadWikiImageFromCandidates(candidates, cacheMap) {
+  for (const candidate of candidates) {
+    try {
+      const imageInfo = await fetchWikiSummary(candidate, cacheMap);
+      if (imageInfo?.src) {
+        return imageInfo;
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+
+  return null;
 }
 
 function createDressSvg(dress) {
@@ -1002,35 +1096,18 @@ async function loadStateImage(place) {
   if (!detailImage || !detailImageStatus || !detailImageCredit) return;
 
   const requestId = ++activeImageRequest;
-  const pageTitle = getWikiPage(place);
+  const scenic = getScenicReference(place);
+  const candidates = scenic.pages?.length ? scenic.pages : [getWikiPage(place)];
   detailImage.classList.remove("is-ready");
   detailImage.removeAttribute("src");
   detailImage.alt = `${place.name} representative image`;
-  detailImageStatus.textContent = `Loading image for ${place.name}...`;
+  detailImageStatus.textContent = `Loading a beautiful ${place.name} backdrop...`;
   detailImageCredit.textContent = "";
 
-  if (stateImageCache.has(pageTitle)) {
-    const cached = stateImageCache.get(pageTitle);
-    if (requestId !== activeImageRequest) return;
-    applyStateImage(place, cached);
-    return;
-  }
-
   try {
-    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`);
-    if (!response.ok) throw new Error(`Image request failed: ${response.status}`);
-    const data = await response.json();
-
-    const imageInfo = {
-      src: data.originalimage?.source || data.thumbnail?.source || "",
-      description: data.description || "",
-      title: data.title || place.name,
-    };
-
-    stateImageCache.set(pageTitle, imageInfo);
-
+    const imageInfo = await loadWikiImageFromCandidates(candidates, stateImageCache);
     if (requestId !== activeImageRequest) return;
-    applyStateImage(place, imageInfo);
+    applyStateImage(place, imageInfo, scenic);
   } catch (error) {
     if (requestId !== activeImageRequest) return;
     detailImageStatus.textContent = `${place.name} selected. Image preview is not available right now.`;
@@ -1038,10 +1115,10 @@ async function loadStateImage(place) {
   }
 }
 
-function applyStateImage(place, imageInfo) {
+function applyStateImage(place, imageInfo, scenic) {
   if (!detailImage || !detailImageStatus || !detailImageCredit) return;
 
-  if (!imageInfo.src) {
+  if (!imageInfo || !imageInfo.src) {
     detailImageStatus.textContent = `${place.name} selected. Image preview is not available right now.`;
     detailImageCredit.textContent = "State details are still available below.";
     return;
@@ -1051,11 +1128,13 @@ function applyStateImage(place, imageInfo) {
     detailImage.classList.add("is-ready");
   };
   detailImage.src = imageInfo.src;
-  detailImage.alt = `${place.name} representative image`;
-  detailImageStatus.textContent = imageInfo.description
-    ? `${place.name} - ${imageInfo.description}`
-    : `${place.name} image loaded`;
-  detailImageCredit.textContent = `Image via Wikipedia summary for ${imageInfo.title}.`;
+  detailImage.alt = `${place.name} scenic backdrop`;
+  detailImageStatus.textContent = scenic?.label
+    ? `${place.name} backdrop: ${scenic.label}`
+    : imageInfo.description
+      ? `${place.name} - ${imageInfo.description}`
+      : `${place.name} image loaded`;
+  detailImageCredit.textContent = `Backdrop image via Wikipedia for ${imageInfo.title}.`;
 }
 
 function renderLegend() {
@@ -1128,11 +1207,8 @@ function renderDetailLinkSet(place) {
 function renderDressSpotlight(place) {
   if (!dressImage || !dressName || !dressLink || !dressState || !dressCard) return;
 
-  const dress = traditionalDressMap[place.id] || {
-    name: "Traditional Dress",
-    style: "sari",
-    colors: ["#b44943", "#f1d8b5", "#406b92"],
-  };
+  const dress = getDressReference(place);
+  const scenic = getScenicReference(place);
 
   dressCard.style.setProperty("--dress-primary", dress.colors[0]);
   dressCard.style.setProperty("--dress-secondary", dress.colors[1]);
@@ -1140,12 +1216,33 @@ function renderDressSpotlight(place) {
   dressCard.classList.remove("is-refreshing");
   void dressCard.offsetWidth;
   dressCard.classList.add("is-refreshing");
+  dressImage.classList.remove("is-photo");
   dressImage.src = dressSvgUrl(dress);
   dressImage.alt = `${dress.name} inspired illustration for ${place.name}`;
   dressName.textContent = dress.name;
-  dressState.textContent = `${place.name} traditional style in a playful animated spotlight.`;
-  dressLink.href = searchUrl(`traditional dress of ${place.name} ${dress.name}`);
+  dressState.textContent = scenic?.label
+    ? `${place.name} style with ${scenic.label} in the backdrop.`
+    : `${place.name} traditional style in a playful spotlight.`;
+  dressLink.href = dress.pages?.[0] ? wikiUrl(dress.pages[0]) : searchUrl(`traditional dress of ${place.name} ${dress.name}`);
   dressLink.textContent = `About ${dress.name}`;
+  loadDressImage(place, dress);
+}
+
+async function loadDressImage(place, dress) {
+  if (!dressImage) return;
+
+  const requestId = ++activeDressRequest;
+  const candidates = dress.pages?.length ? dress.pages : [dress.name];
+
+  try {
+    const imageInfo = await loadWikiImageFromCandidates(candidates, dressImageCache);
+    if (requestId !== activeDressRequest || !imageInfo?.src) return;
+    dressImage.src = imageInfo.src;
+    dressImage.alt = `${dress.name} traditional dress from ${place.name}`;
+    dressImage.classList.add("is-photo");
+  } catch (error) {
+    if (requestId !== activeDressRequest) return;
+  }
 }
 
 function getMapElementsForPlace(place) {
@@ -1155,12 +1252,28 @@ function getMapElementsForPlace(place) {
   const geometryTags = new Set(["path", "polygon", "rect", "ellipse", "circle"]);
   const matched = [];
 
-  aliases.forEach((alias) => {
-    svgDocumentRef.querySelectorAll(`[id*="${alias}"]`).forEach((node) => {
-      if (!geometryTags.has(node.tagName.toLowerCase())) return;
-      if (matched.includes(node)) return;
+  function collectGeometry(node) {
+    if (!node) return;
+
+    const tagName = node.tagName?.toLowerCase?.();
+    if (tagName && geometryTags.has(tagName) && !matched.includes(node)) {
       matched.push(node);
-    });
+    }
+
+    if (typeof node.querySelectorAll === "function") {
+      node.querySelectorAll("path, polygon, rect, ellipse, circle").forEach((child) => {
+        if (!matched.includes(child)) {
+          matched.push(child);
+        }
+      });
+    }
+  }
+
+  aliases.forEach((alias) => {
+    collectGeometry(svgDocumentRef.getElementById(alias));
+    svgDocumentRef
+      .querySelectorAll(`[id="${alias}"], [id^="${alias}."], [id*="${alias}."]`)
+      .forEach((node) => collectGeometry(node));
   });
 
   return matched;
@@ -1181,6 +1294,7 @@ function refreshSvgStyles(filterIds = null) {
       node.style.strokeWidth = isActive ? "3.8" : "1.7";
       node.style.opacity = isMuted ? "0.22" : "1";
       node.style.cursor = "pointer";
+      node.style.pointerEvents = "visiblePainted";
       node.style.transition = "fill 180ms ease, opacity 180ms ease, stroke 180ms ease, stroke-width 180ms ease, filter 180ms ease";
       node.style.filter = isActive ? "brightness(1.04) saturate(1.1)" : "";
     });
