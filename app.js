@@ -712,8 +712,8 @@ const locationColorMap = locations.reduce((accumulator, place, index) => {
 
 const MAP_HOVER_BOOST = 18;
 const MAP_ACTIVE_BOOST = -24;
-const MAP_BORDER_COLOR = "rgba(60,80,110,0.55)";
-const MAP_SELECTED_BORDER_COLOR = "#c0392b";
+const MAP_BORDER_COLOR = "#1b2430";
+const MAP_SELECTED_BORDER_COLOR = "#ffffff";
 
 const mapShell = document.getElementById("india-map-shell");
 const directory = document.getElementById("state-directory");
@@ -3144,18 +3144,14 @@ function refreshSvgStyles(filterIds = null) {
     const activeColor = shiftHexColor(baseColor, MAP_ACTIVE_BOOST);
 
     nodes.forEach((node) => {
-      const hexToRgba = (hex, alpha) => {
-        const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-        return `rgba(${r},${g},${b},${alpha})`;
-      };
-      node.style.fill = isActive ? hexToRgba(activeColor, 0.55) : "transparent";
+      node.style.fill = isActive ? activeColor : baseColor;
       node.style.stroke = isActive ? MAP_SELECTED_BORDER_COLOR : MAP_BORDER_COLOR;
-      node.style.strokeWidth = isActive ? "2.5" : "0.8";
-      node.style.opacity = isMuted ? "0.3" : "1";
+      node.style.strokeWidth = isActive ? "2.8" : "1.25";
+      node.style.opacity = isMuted ? "0.22" : "1";
       node.style.cursor = "pointer";
       node.style.pointerEvents = "visiblePainted";
       node.style.transition = "fill 180ms ease, opacity 180ms ease, stroke 180ms ease, stroke-width 180ms ease, filter 180ms ease";
-      node.style.filter = isActive ? "drop-shadow(0 0 6px rgba(192,57,43,0.4))" : "";
+      node.style.filter = isActive ? "drop-shadow(0 0 8px rgba(255, 255, 255, 0.22))" : "";
     });
   });
 }
@@ -3177,14 +3173,12 @@ function setupSvgMap() {
       node.addEventListener("click", () => selectLocation(place.id));
       node.addEventListener("mouseenter", () => {
         if (place.id !== activeId) {
-          const hex = shiftHexColor(getLocationMapColor(place.id), MAP_HOVER_BOOST);
-          const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-          node.style.fill = `rgba(${r},${g},${b},0.4)`;
+          node.style.fill = shiftHexColor(getLocationMapColor(place.id), MAP_HOVER_BOOST);
         }
       });
       node.addEventListener("mouseleave", () => {
         if (place.id !== activeId) {
-          node.style.fill = "transparent";
+          node.style.fill = getLocationMapColor(place.id);
         }
       });
     });
