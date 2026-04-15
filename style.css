@@ -430,22 +430,23 @@ h3 { font-size: 1.05rem; }
 }
 
 .map-stage {
-  background: #08111f;
+  background: #e8eff7;
   position: relative;
 }
 
 .india-map-shell {
   width: 100%;
-  aspect-ratio: 1500 / 1614.844;
-  min-height: 860px;
+  aspect-ratio: 1000 / 1116;
+  min-height: 560px;
   display: block;
-  background: #08111f;
+  background: url('india-political-map.jpg') center / contain no-repeat #e8eff7;
 }
 
 .india-map-shell svg {
   width: 100%;
   height: 100%;
   display: block;
+  background: transparent;
 }
 
 .india-map-shell [id] { vector-effect: non-scaling-stroke; }
@@ -1667,7 +1668,7 @@ h3 { font-size: 1.05rem; }
   }
 
   .india-map-shell {
-    min-height: 720px;
+    min-height: 480px;
   }
 
   .hero-stats {
